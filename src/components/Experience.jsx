@@ -3,7 +3,7 @@ import Reveal from "./Reveal";
 
 export default function Experience() {
   return (
-    <section id="experience" className="relative py-24 md:py-32 px-6 md:px-10">
+    <section id="experience" className="relative py-24 md:py-32 px-6 md:px-10 scroll-mt-24">
       <div className="max-w-2xl mx-auto">
         <Reveal className="text-center mb-16 md:mb-20">
           <p className="font-heading text-xs uppercase tracking-[0.25em] text-[var(--color-ink-faint)] mb-4">

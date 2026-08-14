@@ -13,7 +13,7 @@ const links = [
 
 export default function Contact() {
   return (
-    <section id="contact" className="relative py-28 md:py-40 px-6 md:px-10 border-t border-[var(--color-line)] overflow-hidden">
+    <section id="contact" className="relative py-28 md:py-40 px-6 md:px-10 border-t border-[var(--color-line)] overflow-hidden scroll-mt-24">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <motion.div
           initial={{ opacity: 0 }}

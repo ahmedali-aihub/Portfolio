@@ -65,6 +65,7 @@ export default function ChatBot() {
   const [streaming, setStreaming] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [inputFocused, setInputFocused] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -72,6 +73,15 @@ export default function ChatBot() {
     const onExternalOpen = () => setOpen(true);
     window.addEventListener("toggle-chatbot", onExternalOpen);
     return () => window.removeEventListener("toggle-chatbot", onExternalOpen);
+  }, []);
+
+  useEffect(() => {
+    const onMobileNav = (e) => {
+      setMobileMenuOpen(e.detail.open);
+      if (e.detail.open) setOpen(false);
+    };
+    window.addEventListener("mobile-nav-menu", onMobileNav);
+    return () => window.removeEventListener("mobile-nav-menu", onMobileNav);
   }, []);
 
   useEffect(() => {
@@ -191,11 +201,15 @@ export default function ChatBot() {
 
   return (
     <>
+      <div
+        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[70] transition-all duration-300 ${
+          mobileMenuOpen ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100"
+        }`}
+      >
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
-        className="fixed bottom-6 right-6 z-[70]"
       >
         <motion.span
           className="absolute inset-0 rounded-full pointer-events-none"
@@ -218,7 +232,7 @@ export default function ChatBot() {
           }}
           transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut" }}
           aria-label="Ask Ahmed's AI assistant"
-          className="relative flex items-center justify-center w-14 h-14 rounded-full"
+          className="relative flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full"
           style={{
             background: "linear-gradient(150deg, #ffffff 0%, #cdd1d5 45%, #8c9197 100%)",
           }}
@@ -244,6 +258,7 @@ export default function ChatBot() {
         </AnimatePresence>
         </motion.button>
       </motion.div>
+      </div>
 
       <AnimatePresence>
         {open && (
@@ -252,7 +267,7 @@ export default function ChatBot() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 12, scale: 0.97 }}
             transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
-            className="fixed bottom-24 right-6 z-[70] w-[min(92vw,380px)] h-[min(70vh,540px)] flex flex-col rounded-2xl border border-white/10 overflow-hidden"
+            className="fixed bottom-[calc(5.75rem+env(safe-area-inset-bottom))] right-5 sm:bottom-24 sm:right-6 z-[70] w-[min(92vw,380px)] h-[min(65vh,540px)] sm:h-[min(70vh,540px)] flex flex-col rounded-2xl border border-white/10 overflow-hidden"
             style={{
               background: "linear-gradient(180deg, var(--color-surface-2), var(--color-surface))",
               boxShadow: "0 24px 70px -12px rgba(0,0,0,0.7)",

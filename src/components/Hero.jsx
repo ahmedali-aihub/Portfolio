@@ -26,7 +26,7 @@ const fadeUp = {
 
 export default function Hero({ loaded = true }) {
   return (
-    <section id="top" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 md:px-10 pt-28 pb-16">
+    <section id="top" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 md:px-10 pt-28 pb-28 sm:pb-16">
       <div className="pointer-events-none absolute inset-0 -z-10">
         <motion.div
           initial={{ opacity: 0, y: -30 }}

@@ -23,6 +23,7 @@ export default function Navbar() {
 
   useEffect(() => {
     document.body.style.overflow = menuOpen ? "hidden" : "";
+    window.dispatchEvent(new CustomEvent("mobile-nav-menu", { detail: { open: menuOpen } }));
   }, [menuOpen]);
 
   useEffect(() => {

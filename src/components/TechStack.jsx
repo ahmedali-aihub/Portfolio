@@ -87,7 +87,7 @@ function SkillChip({ item }) {
 
 export default function TechStack() {
   return (
-    <section id="stack" className="relative py-24 md:py-32 px-6 md:px-10">
+    <section id="stack" className="relative py-24 md:py-32 px-6 md:px-10 scroll-mt-24">
       <Reveal className="text-center mb-16 md:mb-20">
         <p className="font-heading text-xs uppercase tracking-[0.25em] text-[var(--color-ink-faint)] mb-4">
           Skills
