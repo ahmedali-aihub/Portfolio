@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
+import { motion, useScroll, useMotionValueEvent } from "framer-motion";
 import { BotMessageSquare } from "lucide-react";
 
 const links = [
@@ -10,21 +10,19 @@ const links = [
   { label: "Contact", href: "#contact" },
 ];
 
+const mobileLinks = links.filter((link) =>
+  ["#about", "#stack", "#experience"].includes(link.href)
+);
+
 export default function Navbar() {
   const { scrollYProgress } = useScroll();
   const [scrolled, setScrolled] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
   const [hovered, setHovered] = useState(null);
   const [active, setActive] = useState(null);
 
   useMotionValueEvent(scrollYProgress, "change", (v) => {
     setScrolled(v > 0.01);
   });
-
-  useEffect(() => {
-    document.body.style.overflow = menuOpen ? "hidden" : "";
-    window.dispatchEvent(new CustomEvent("mobile-nav-menu", { detail: { open: menuOpen } }));
-  }, [menuOpen]);
 
   useEffect(() => {
     const sections = links
@@ -49,7 +47,6 @@ export default function Navbar() {
   const highlighted = hovered ?? active;
 
   return (
-    <>
       <motion.div
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
@@ -74,7 +71,7 @@ export default function Navbar() {
           <a
             href="#top"
             data-cursor="hover"
-            className="font-heading font-semibold text-sm tracking-tight text-[var(--color-void)] pr-4 mr-1 border-r border-black/10"
+            className="font-heading font-semibold text-sm tracking-tight text-[var(--color-void)] pr-3 md:pr-4 mr-0.5 md:mr-1 border-r border-black/10 shrink-0"
           >
             Ahmed Ali
           </a>
@@ -98,6 +95,29 @@ export default function Navbar() {
                 {highlighted === link.href && (
                   <motion.div
                     layoutId="nav-hover-pill"
+                    className="absolute inset-0 rounded-full bg-black/8"
+                    transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                  />
+                )}
+              </li>
+            ))}
+          </ul>
+
+          <ul className="flex md:hidden items-center gap-0 font-heading text-[11px] font-medium text-black/60">
+            {mobileLinks.map((link) => (
+              <li key={link.href} className="relative">
+                <a
+                  href={link.href}
+                  data-cursor="hover"
+                  className={`relative z-10 block px-2 py-1.5 rounded-full transition-colors duration-200 ${
+                    active === link.href ? "text-black" : "hover:text-black"
+                  }`}
+                >
+                  {link.label}
+                </a>
+                {active === link.href && (
+                  <motion.div
+                    layoutId="nav-hover-pill-mobile"
                     className="absolute inset-0 rounded-full bg-black/8"
                     transition={{ type: "spring", stiffness: 400, damping: 32 }}
                   />
@@ -130,62 +150,12 @@ export default function Navbar() {
           <button
             data-cursor="hover"
             onClick={() => window.dispatchEvent(new CustomEvent("toggle-chatbot"))}
-            className="md:hidden flex items-center justify-center p-2 ml-1 text-black/70"
+            className="md:hidden flex items-center justify-center p-1.5 ml-0.5 shrink-0 text-black/70"
             aria-label="Ask Ahmed's AI assistant"
           >
-            <BotMessageSquare size={17} strokeWidth={1.8} />
-          </button>
-
-          <button
-            data-cursor="hover"
-            onClick={() => setMenuOpen((v) => !v)}
-            className="md:hidden flex flex-col gap-1.5 z-50 p-2 ml-1"
-            aria-label="Toggle menu"
-          >
-            <motion.span
-              animate={menuOpen ? { rotate: 45, y: 5 } : { rotate: 0, y: 0 }}
-              className="w-5 h-px bg-[var(--color-void)]"
-            />
-            <motion.span
-              animate={menuOpen ? { opacity: 0 } : { opacity: 1 }}
-              className="w-5 h-px bg-[var(--color-void)]"
-            />
-            <motion.span
-              animate={menuOpen ? { rotate: -45, y: -5 } : { rotate: 0, y: 0 }}
-              className="w-5 h-px bg-[var(--color-void)]"
-            />
+            <BotMessageSquare size={16} strokeWidth={1.8} />
           </button>
         </motion.nav>
       </motion.div>
-
-      <AnimatePresence>
-        {menuOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.4 }}
-            className="fixed inset-0 z-40 bg-[var(--color-void)] flex flex-col items-center justify-center gap-8 md:hidden"
-          >
-            {links.map((link, i) => (
-              <motion.a
-                key={link.href}
-                href={link.href}
-                onClick={() => setMenuOpen(false)}
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 10 }}
-                transition={{ delay: 0.1 + i * 0.06 }}
-                className={`font-display text-3xl font-medium transition-colors ${
-                  active === link.href ? "text-[var(--color-silver-bright)]" : "text-[var(--color-ink)]"
-                }`}
-              >
-                {link.label}
-              </motion.a>
-            ))}
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
   );
 }

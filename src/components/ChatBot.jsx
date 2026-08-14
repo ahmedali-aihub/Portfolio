@@ -65,7 +65,6 @@ export default function ChatBot() {
   const [streaming, setStreaming] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [inputFocused, setInputFocused] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -73,15 +72,6 @@ export default function ChatBot() {
     const onExternalOpen = () => setOpen(true);
     window.addEventListener("toggle-chatbot", onExternalOpen);
     return () => window.removeEventListener("toggle-chatbot", onExternalOpen);
-  }, []);
-
-  useEffect(() => {
-    const onMobileNav = (e) => {
-      setMobileMenuOpen(e.detail.open);
-      if (e.detail.open) setOpen(false);
-    };
-    window.addEventListener("mobile-nav-menu", onMobileNav);
-    return () => window.removeEventListener("mobile-nav-menu", onMobileNav);
   }, []);
 
   useEffect(() => {
@@ -201,15 +191,11 @@ export default function ChatBot() {
 
   return (
     <>
-      <div
-        className={`fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[70] transition-all duration-300 ${
-          mobileMenuOpen ? "opacity-0 scale-90 pointer-events-none" : "opacity-100 scale-100"
-        }`}
-      >
       <motion.div
         initial={{ opacity: 0, scale: 0.8 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ duration: 0.6, delay: 1.4, ease: [0.16, 1, 0.3, 1] }}
+        className="fixed bottom-5 right-5 sm:bottom-6 sm:right-6 z-[70]"
       >
         <motion.span
           className="absolute inset-0 rounded-full pointer-events-none"
@@ -258,7 +244,6 @@ export default function ChatBot() {
         </AnimatePresence>
         </motion.button>
       </motion.div>
-      </div>
 
       <AnimatePresence>
         {open && (
