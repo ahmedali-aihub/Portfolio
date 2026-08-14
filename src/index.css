@@ -24,6 +24,18 @@
   --color-silver-dim: #7e848a;
 }
 
+@property --mx {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 50%;
+}
+
+@property --my {
+  syntax: "<percentage>";
+  inherits: true;
+  initial-value: 35%;
+}
+
 @layer base {
   * {
     border-color: var(--color-line);
@@ -82,6 +94,37 @@
 
   .bg-silver-sheen {
     background: linear-gradient(100deg, var(--color-silver-dim), var(--color-silver-bright) 60%, var(--color-silver));
+  }
+
+  .chrome-text {
+    --mx: 50%;
+    --my: 35%;
+    background-image: radial-gradient(
+      480px circle at var(--mx) var(--my),
+      #ffffff 0%,
+      #f4f5f6 18%,
+      #cfd3d7 42%,
+      #9a9fa5 68%,
+      #6d7278 100%
+    );
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+  }
+
+  .chrome-text-auto {
+    animation: chrome-sweep 7s ease-in-out infinite;
+  }
+
+  @keyframes chrome-sweep {
+    0%, 100% {
+      --mx: 10%;
+      --my: 25%;
+    }
+    50% {
+      --mx: 90%;
+      --my: 55%;
+    }
   }
 
   .noise-overlay {

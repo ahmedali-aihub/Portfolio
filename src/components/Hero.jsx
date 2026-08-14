@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { profile } from "../data/content";
+import ChromeText from "./ChromeText";
 import MagneticButton from "./MagneticButton";
 import MoonOrb from "./MoonOrb";
 import Typewriter from "./Typewriter";
@@ -76,8 +77,8 @@ export default function Hero({ loaded = true }) {
             </motion.span>
           </span>
           <span className="block overflow-hidden">
-            <motion.span variants={line} className="block font-bold text-silver-sheen">
-              Ahmed Ali
+            <motion.span variants={line} className="block">
+              <ChromeText text="Ahmed Ali" className="block font-bold" />
             </motion.span>
           </span>
         </motion.h1>
