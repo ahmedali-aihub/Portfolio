@@ -3,7 +3,7 @@ export const profile = {
   title: "AI/ML Engineer",
   subtitle: "GenAI & Agentic Systems",
   tagline:
-    "I design and ship intelligent systems — from retrieval-augmented pipelines to autonomous agents that act on the real world.",
+    "I build systems where language models don't just talk — they retrieve, reason, and act.",
   location: "Hyderabad, India",
   phone: "+91 90001 89973",
   github: "https://github.com/ahmedali-aihub",

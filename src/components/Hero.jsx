@@ -87,7 +87,8 @@ export default function Hero({ loaded = true }) {
           initial="hidden"
           animate={loaded ? "visible" : "hidden"}
           variants={fadeUp}
-          className="mt-8 max-w-lg mx-auto text-[var(--color-ink-dim)] text-base md:text-lg leading-relaxed"
+          className="mt-8 max-w-lg mx-auto text-[var(--color-silver)] text-lg md:text-xl italic leading-relaxed"
+          style={{ fontFamily: "var(--font-quote)", fontWeight: 400 }}
         >
           {profile.tagline}
         </motion.p>
