@@ -46,7 +46,7 @@ export default function MarqueeTicker() {
               <div
                 key={i}
                 data-cursor="hover"
-                className="group flex items-center gap-2 shrink-0 px-4 py-1 cursor-default"
+                className="group flex items-center gap-2 shrink-0 px-4 py-1"
                 style={{ "--tc": item.color }}
               >
                 <Icon

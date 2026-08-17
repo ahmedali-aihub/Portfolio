@@ -71,6 +71,7 @@ export const techStack = [
       { label: "MCP Servers", icon: "mcp", color: "#DA7756" },
       { label: "Anthropic", icon: "anthropic", color: "#D97757" },
       { label: "OpenRouter", icon: "openrouter", color: "#6366F1" },
+      { label: "Hugging Face", icon: "huggingface", color: "#FFD21E" },
       { label: "Agentic AI", icon: "bot", color: "#A78BFA" },
       { label: "Prompt Engineering", icon: "terminal", color: "#FBBF24" },
     ],
@@ -80,12 +81,15 @@ export const techStack = [
     description: "Training and explaining models across sequential, classical, and vision tasks.",
     items: [
       { label: "Python", icon: "python", color: "#3776AB" },
+      { label: "NumPy", icon: "numpy", color: "#4DABCF" },
+      { label: "Pandas", icon: "pandas", color: "#8C6FE8" },
       { label: "TensorFlow", icon: "tensorflow", color: "#FF6F00" },
       { label: "Keras", icon: "keras", color: "#D00000" },
       { label: "PyTorch", icon: "pytorch", color: "#EE4C2C" },
       { label: "Scikit-learn", icon: "scikit", color: "#F7931E" },
       { label: "NLP", icon: "nlp", color: "#22D3EE" },
       { label: "SHAP", icon: "shap", color: "#C084FC" },
+      { label: "Jupyter", icon: "jupyter", color: "#F37626" },
     ],
   },
   {
@@ -94,7 +98,6 @@ export const techStack = [
     items: [
       { label: "RAG", icon: "rag", color: "#38BDF8" },
       { label: "Vector DBs", icon: "database", color: "#34D399" },
-      { label: "Pinecone", icon: "pinecone", color: "#10B981" },
       { label: "FAISS", icon: "faiss", color: "#4267B2" },
     ],
   },
@@ -103,8 +106,9 @@ export const techStack = [
     description: "Serving models and agents through production-grade APIs and data layers.",
     items: [
       { label: "FastAPI", icon: "fastapi", color: "#009688" },
+      { label: "Streamlit", icon: "streamlit", color: "#FF4B4B" },
+      { label: "Docker", icon: "docker", color: "#2496ED" },
       { label: "MySQL", icon: "mysql", color: "#4479A1" },
-      { label: "SQLAlchemy", icon: "sqlalchemy", color: "#D71F00" },
       { label: "Selenium", icon: "selenium", color: "#43B02A" },
       { label: "Playwright", icon: "playwright", color: "#2EAD33" },
     ],
@@ -123,48 +127,8 @@ export const projects = [
     link: null,
   },
   {
-    id: "calendar-agent",
-    index: "02",
-    category: "Agentic AI",
-    name: "Calendar Agent",
-    description:
-      "An autonomous scheduling agent built from scratch on LangGraph — reads intent, checks availability, and books, moves, or cancels events directly on Google Calendar.",
-    stack: ["LangGraph", "Google Calendar API"],
-    link: null,
-  },
-  {
-    id: "email-agent",
-    index: "03",
-    category: "Agentic AI",
-    name: "Email Agent",
-    description:
-      "An LLM-driven agent that triages, drafts, and handles email automatically, routing between LangChain tool calls and OpenRouter-hosted models based on task complexity.",
-    stack: ["LangChain", "OpenRouter"],
-    link: null,
-  },
-  {
-    id: "heart-disease-classifier",
-    index: "04",
-    category: "Classical ML",
-    name: "Heart Disease Classifier",
-    description:
-      "A decision tree model for early heart disease risk prediction, paired with SHAP explainability so every prediction can be traced back to the clinical features driving it.",
-    stack: ["Scikit-learn", "SHAP"],
-    link: null,
-  },
-  {
-    id: "smoking-detection",
-    index: "05",
-    category: "Computer Vision",
-    name: "Smoking Detection Classifier",
-    description:
-      "An image classification model that detects smoking behavior from photos, trained with TensorFlow/Keras and deployed as an interactive Streamlit web app.",
-    stack: ["TensorFlow / Keras", "Streamlit"],
-    link: null,
-  },
-  {
     id: "conference-bot",
-    index: "06",
+    index: "02",
     category: "Team Project",
     name: "Agentic Conference Registration Bot",
     description:
@@ -172,30 +136,20 @@ export const projects = [
     stack: ["Serper API", "Playwright", "Headless Browsers"],
     link: null,
   },
-  {
-    id: "text-to-sql-rag",
-    index: "07",
-    category: "RAG / Data",
-    name: "Text-to-SQL / RAG Pipeline",
-    description:
-      "A natural-language-to-SQL pipeline that translates plain-English questions into structured MySQL queries, combining retrieval-augmented context with the Anthropic API.",
-    stack: ["FastAPI", "SQLAlchemy", "Anthropic API"],
-    link: null,
-  },
 ];
 
 export const experience = [
+  {
+    role: "Data Scientist Intern",
+    org: "TechZone Academy",
+    period: "Jan 2025 — May 2026",
+    description: "",
+  },
   {
     role: "AI/ML Associate Engineer",
     org: "Yuva Intelli AI Solutions",
     period: "May 2026 — Present",
     description:
       "Building RAG pipelines, LLM agents, and end-to-end ML workflows for production use cases.",
-  },
-  {
-    role: "Data Scientist Intern",
-    org: "TechZone Academy",
-    period: "Jan 2025 — May 2026",
-    description: "",
   },
 ];

@@ -168,8 +168,7 @@
 }
 
 /* Custom cursor */
-.cursor-dot,
-.cursor-ring {
+.cursor-dot {
   position: fixed;
   top: 0;
   left: 0;
@@ -179,8 +178,16 @@
 }
 
 @media (hover: none) {
-  .cursor-dot,
-  .cursor-ring {
+  .cursor-dot {
     display: none !important;
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  body,
+  a,
+  button,
+  [role="button"] {
+    cursor: none;
   }
 }

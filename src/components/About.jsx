@@ -23,16 +23,6 @@ export default function About() {
             </Reveal>
           ))}
         </div>
-
-        <Reveal delay={0.3} className="text-center mt-12">
-          <a
-            href="#contact"
-            data-cursor="hover"
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line)] px-8 py-3.5 font-heading text-sm font-medium text-[var(--color-ink)] transition-colors hover:border-[var(--color-silver-dim)]"
-          >
-            Contact Me
-          </a>
-        </Reveal>
       </div>
     </section>
   );

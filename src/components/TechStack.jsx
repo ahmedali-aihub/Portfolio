@@ -1,20 +1,26 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bot, Terminal, Languages, Puzzle, Search, Database, TreePine, Boxes, Drama } from "lucide-react";
+import { Bot, Terminal, Languages, Puzzle, Search, Database, TestTube2 } from "lucide-react";
 import {
   SiLangchain,
   SiLanggraph,
   SiModelcontextprotocol,
   SiAnthropic,
   SiOpenrouter,
+  SiHuggingface,
   SiPython,
+  SiNumpy,
+  SiPandas,
   SiTensorflow,
   SiKeras,
   SiPytorch,
   SiScikitlearn,
+  SiJupyter,
+  SiMeta,
   SiFastapi,
+  SiStreamlit,
+  SiDocker,
   SiMysql,
-  SiSqlalchemy,
   SiSelenium,
 } from "react-icons/si";
 import { techStack } from "../data/content";
@@ -26,24 +32,28 @@ const ICONS = {
   mcp: SiModelcontextprotocol,
   anthropic: SiAnthropic,
   openrouter: SiOpenrouter,
+  huggingface: SiHuggingface,
   bot: Bot,
   terminal: Terminal,
   python: SiPython,
+  numpy: SiNumpy,
+  pandas: SiPandas,
   tensorflow: SiTensorflow,
   keras: SiKeras,
   pytorch: SiPytorch,
   scikit: SiScikitlearn,
   nlp: Languages,
   shap: Puzzle,
+  jupyter: SiJupyter,
   rag: Search,
   database: Database,
-  pinecone: TreePine,
-  faiss: Boxes,
+  faiss: SiMeta,
   fastapi: SiFastapi,
+  streamlit: SiStreamlit,
+  docker: SiDocker,
   mysql: SiMysql,
-  sqlalchemy: SiSqlalchemy,
   selenium: SiSelenium,
-  playwright: Drama,
+  playwright: TestTube2,
 };
 
 const list = {
@@ -68,7 +78,7 @@ function SkillChip({ item }) {
       onMouseLeave={() => setHovered(false)}
       whileHover={{ y: -3, scale: 1.06 }}
       transition={{ type: "spring", stiffness: 350, damping: 18 }}
-      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-[var(--color-ink-dim)] cursor-default border border-transparent transition-colors duration-200"
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-[var(--color-ink-dim)] border border-transparent transition-colors duration-200"
       style={{
         backgroundColor: hovered ? `color-mix(in srgb, ${item.color} 14%, transparent)` : "transparent",
         borderColor: hovered ? `color-mix(in srgb, ${item.color} 35%, transparent)` : "transparent",

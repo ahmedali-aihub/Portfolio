@@ -1,6 +1,26 @@
 import { useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bot, BotMessageSquare, Check, Clock, Copy, FolderKanban, Layers3, Loader2, Phone, Send, User, X } from "lucide-react";
+import {
+  ArrowLeft,
+  Bot,
+  BotMessageSquare,
+  Check,
+  Clock,
+  Copy,
+  Cpu,
+  FileText,
+  FolderKanban,
+  Info,
+  Layers3,
+  Loader2,
+  MessageSquare,
+  Phone,
+  Search,
+  Send,
+  User,
+  X,
+  Zap,
+} from "lucide-react";
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8003";
 
@@ -11,6 +31,36 @@ const SUGGESTIONS = [
   { text: "Tell me about a project", icon: FolderKanban },
   { text: "What's your experience?", icon: Clock },
   { text: "How can I reach you?", icon: Phone },
+];
+
+const PIPELINE_STEPS = [
+  {
+    icon: MessageSquare,
+    title: "You ask a question",
+    description: "Typed here, sent straight to the backend the moment you hit send.",
+  },
+  {
+    icon: Search,
+    title: "TF-IDF retrieval",
+    description:
+      "A lightweight keyword-based search finds the most relevant facts from Ahmed's actual skills, projects, and experience — no vector database needed at this corpus size.",
+  },
+  {
+    icon: FileText,
+    title: "Context injection",
+    description: "The retrieved facts get added to the prompt, so the answer stays grounded in what's real.",
+  },
+  {
+    icon: Cpu,
+    title: "LLM fallback chain",
+    description:
+      "Sent to a free OpenRouter model. If it's rate-limited or down, the next model in the chain automatically takes over.",
+  },
+  {
+    icon: Zap,
+    title: "Streamed back live",
+    description: "Tokens stream to you token-by-token over SSE, the same way ChatGPT-style interfaces work.",
+  },
 ];
 
 function renderFormatted(text) {
@@ -65,6 +115,7 @@ export default function ChatBot() {
   const [streaming, setStreaming] = useState(false);
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [inputFocused, setInputFocused] = useState(false);
+  const [showInfo, setShowInfo] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
 
@@ -72,6 +123,14 @@ export default function ChatBot() {
     const onExternalOpen = () => setOpen(true);
     window.addEventListener("toggle-chatbot", onExternalOpen);
     return () => window.removeEventListener("toggle-chatbot", onExternalOpen);
+  }, []);
+
+  // Free-tier hosting (Render) spins the backend down when idle, so the
+  // very first chat request after a visitor lands can take 30-50s just to
+  // wake it up. Pinging the lightweight health endpoint as soon as the
+  // page loads gives it a head start before the visitor ever opens chat.
+  useEffect(() => {
+    fetch(`${API_URL}/api/health`).catch(() => {});
   }, []);
 
   useEffect(() => {
@@ -284,6 +343,14 @@ export default function ChatBot() {
               </div>
               <button
                 data-cursor="hover"
+                onClick={() => setShowInfo((v) => !v)}
+                aria-label={showInfo ? "Back to chat" : "How this assistant works"}
+                className="relative p-1.5 text-[var(--color-ink-faint)] hover:text-[var(--color-ink)] transition-colors"
+              >
+                {showInfo ? <ArrowLeft size={16} /> : <Info size={16} />}
+              </button>
+              <button
+                data-cursor="hover"
                 onClick={() => setOpen(false)}
                 aria-label="Close chat"
                 className="relative p-1.5 text-[var(--color-ink-faint)] hover:text-[var(--color-ink)] transition-colors"
@@ -292,6 +359,35 @@ export default function ChatBot() {
               </button>
             </div>
 
+            {showInfo ? (
+              <div data-lenis-prevent className="flex-1 overflow-y-auto px-5 py-5">
+                <p className="text-xs text-[var(--color-ink-faint)] leading-relaxed mb-6">
+                  This assistant is a real, working RAG (retrieval-augmented generation) pipeline built for this
+                  portfolio — here's exactly what happens between your question and the answer.
+                </p>
+                <div className="relative">
+                  <div className="absolute left-[15px] top-2 bottom-2 w-px bg-[var(--color-line)]" />
+                  {PIPELINE_STEPS.map((step, i) => (
+                    <motion.div
+                      key={step.title}
+                      initial={{ opacity: 0, y: 8 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.35, delay: i * 0.08, ease: [0.16, 1, 0.3, 1] }}
+                      className="relative flex gap-3.5 pb-7 last:pb-0"
+                    >
+                      <div className="relative z-10 w-[31px] h-[31px] shrink-0 rounded-full flex items-center justify-center bg-[var(--color-void)] border border-[var(--color-line)]">
+                        <step.icon size={14} className="text-[var(--color-ink-dim)]" />
+                      </div>
+                      <div className="pt-1">
+                        <p className="text-sm font-semibold text-[var(--color-ink)] mb-1">{step.title}</p>
+                        <p className="text-xs text-[var(--color-ink-faint)] leading-relaxed">{step.description}</p>
+                      </div>
+                    </motion.div>
+                  ))}
+                </div>
+              </div>
+            ) : (
+            <>
             <div ref={scrollRef} data-lenis-prevent className="flex-1 overflow-y-auto px-4 py-4 space-y-4">
               {messages.length === 0 && (
                 <div>
@@ -410,6 +506,8 @@ export default function ChatBot() {
                 )}
               </motion.button>
             </form>
+            </>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

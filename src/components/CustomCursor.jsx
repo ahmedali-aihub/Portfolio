@@ -1,13 +1,11 @@
 import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring } from "framer-motion";
+import { motion, useMotionValue } from "framer-motion";
 
 export default function CustomCursor() {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
   const dotX = useMotionValue(-100);
   const dotY = useMotionValue(-100);
-  const ringX = useSpring(dotX, { stiffness: 300, damping: 30, mass: 0.4 });
-  const ringY = useSpring(dotY, { stiffness: 300, damping: 30, mass: 0.4 });
 
   useEffect(() => {
     const move = (e) => {
@@ -36,18 +34,10 @@ export default function CustomCursor() {
         style={{
           x: dotX,
           y: dotY,
-          width: 6,
-          height: 6,
+          width: 8,
+          height: 8,
         }}
-      />
-      <motion.div
-        className="cursor-ring rounded-full border border-[var(--color-silver-dim)]"
-        style={{ x: ringX, y: ringY }}
-        animate={{
-          width: isHovering ? 56 : 32,
-          height: isHovering ? 56 : 32,
-          opacity: isHovering ? 1 : 0.5,
-        }}
+        animate={{ scale: isHovering ? 2.2 : 1 }}
         transition={{ type: "spring", stiffness: 300, damping: 25 }}
       />
     </div>

@@ -70,7 +70,7 @@ async def stream_chat(user_message: str, context_chunks: list[str], history: lis
     for model in FALLBACK_MODELS:
         got_any = False
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(30.0, connect=10.0)) as client:
+            async with httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=6.0)) as client:
                 async with client.stream(
                     "POST", OPENROUTER_URL, headers=_headers(), json=_build_payload(model, messages)
                 ) as response:
