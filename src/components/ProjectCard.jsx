@@ -3,10 +3,15 @@ import { motion } from "framer-motion";
 import { ArrowUpRight } from "lucide-react";
 import Reveal from "./Reveal";
 
-export default function ProjectCard({ project }) {
+export default function ProjectCard({ project, onOpen }) {
   const [hovered, setHovered] = useState(false);
-  const Wrapper = project.link ? "a" : "div";
-  const wrapperProps = project.link ? { href: project.link, target: "_blank", rel: "noreferrer" } : {};
+  const clickable = Boolean(project.link || project.caseStudy);
+  const Wrapper = project.link ? "a" : clickable ? "button" : "div";
+  const wrapperProps = project.link
+    ? { href: project.link, target: "_blank", rel: "noreferrer" }
+    : project.caseStudy
+    ? { type: "button", onClick: () => onOpen(project) }
+    : {};
 
   return (
     <Reveal>
@@ -16,7 +21,7 @@ export default function ProjectCard({ project }) {
         data-cursor="hover"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="group relative grid md:grid-cols-12 gap-4 md:gap-8 items-start md:items-center py-8 md:py-10 border-b border-[var(--color-line)] transition-colors"
+        className="group relative w-full text-left grid md:grid-cols-12 gap-4 md:gap-8 items-start md:items-center py-8 md:py-10 border-b border-[var(--color-line)] transition-colors"
       >
         <motion.div
           className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -49,12 +54,12 @@ export default function ProjectCard({ project }) {
         <div className="md:col-span-3 flex md:justify-end relative">
           <span
             className={`inline-flex items-center gap-2 font-heading text-xs font-semibold uppercase tracking-wider ${
-              project.link ? "text-[var(--color-ink)]" : "text-[var(--color-ink-faint)]"
+              clickable ? "text-[var(--color-ink)]" : "text-[var(--color-ink-faint)]"
             }`}
           >
-            {project.link ? "View Details" : "In Progress"}
+            {clickable ? "View Details" : "In Progress"}
             <motion.span
-              animate={{ rotate: hovered && project.link ? 45 : 0, x: hovered && project.link ? 2 : 0 }}
+              animate={{ rotate: hovered && clickable ? 45 : 0, x: hovered && clickable ? 2 : 0 }}
               transition={{ duration: 0.3 }}
             >
               <ArrowUpRight size={16} />

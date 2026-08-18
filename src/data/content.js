@@ -125,6 +125,50 @@ export const projects = [
       "A GRU4Rec sequential model trained on e-commerce behavior data to predict next-item intent within a session, served through a FastAPI backend with a Streamlit interface for live exploration.",
     stack: ["TensorFlow", "FastAPI", "Streamlit"],
     link: null,
+    caseStudy: {
+      tagline:
+        "A real online store where “Recommended for you” is generated live by AI watching your last few clicks — not a fake suggestion list.",
+      overview:
+        "Most online stores recommend things based on your account history — “you bought X before, so here's Y.” This project instead watches what you click right now, in this visit, and predicts what you'll want to look at next — the same way Instagram or TikTok reacts to your scrolling in real time, not a years-old profile.",
+      stats: [
+        { label: "Real click events", value: "20M" },
+        { label: "Real products", value: "140K" },
+        { label: "Cloud services", value: "3" },
+        { label: "Login required", value: "0" },
+      ],
+      steps: [
+        {
+          icon: "database",
+          title: "Real-world data",
+          description:
+            "20 million real e-commerce click events taught the model what sequences of clicks typically lead to next.",
+        },
+        {
+          icon: "brain",
+          title: "GRU4Rec model",
+          description:
+            "A neural network reads the last few products you've viewed like a sentence and predicts the most likely next one — the same way autocomplete predicts your next word from what you just typed.",
+        },
+        {
+          icon: "store",
+          title: "A real storefront",
+          description:
+            "A normal-looking store — browse, search, categories, a cart — built with React, backed by a database of roughly 140,000 real products.",
+        },
+        {
+          icon: "link",
+          title: "The connection",
+          description:
+            "Every product click is quietly remembered in your browser, no login needed. Back on the homepage, that short click history is sent to the model, which answers “what next?” live.",
+        },
+        {
+          icon: "cloud",
+          title: "Live on three services",
+          description:
+            "Frontend on Vercel, backend and model on Render, product database on Aiven — three free services wired together so it's actually live on the internet, not just running on a laptop.",
+        },
+      ],
+    },
   },
   {
     id: "conference-bot",
