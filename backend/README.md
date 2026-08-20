@@ -30,10 +30,15 @@ source .venv/Scripts/activate   # Windows Git Bash; use .venv\Scripts\activate o
 pip install -r requirements.txt
 cp .env.example .env
 # then edit .env and paste your free key from https://openrouter.ai/keys
-uvicorn app.main:app --reload --port 8000
+uvicorn app.main:app --reload --port 8003
 ```
 
-Check it's alive: `curl http://localhost:8000/api/health`
+Check it's alive: `curl http://localhost:8003/api/health`
+
+Port 8003 matters: the frontend's `ChatBot.jsx` falls back to
+`http://localhost:8003` when `VITE_API_URL` is unset. Run it elsewhere
+and the widget reports "I couldn't connect to the assistant backend."
+
 
 ## Updating the knowledge base
 
