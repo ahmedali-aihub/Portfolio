@@ -37,6 +37,10 @@ ALLOWED_ORIGINS = [
     if origin.strip()
 ]
 
+# Any localhost/127.0.0.1 port, so a Vite dev server that moved to 5174
+# still passes CORS. Deployed origins must be listed in ALLOWED_ORIGINS.
+LOCAL_ORIGIN_REGEX = r"^http://(localhost|127\.0\.0\.1):\d+$"
+
 MAX_MESSAGE_LENGTH = 600
 MAX_HISTORY_MESSAGES = 8
 RATE_LIMIT_PER_MINUTE = 12

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   ArrowLeft,
@@ -24,6 +24,16 @@ import {
 
 const API_URL = import.meta.env.VITE_API_URL || "http://localhost:8003";
 
+// A whole answer (model fallback chain included) can legitimately take a
+// while on free tiers; only give up well past that.
+const REQUEST_TIMEOUT = 75000;
+const HEALTH_TIMEOUT = 10000;
+// Connection-level failures only, and only before any token has arrived.
+const RETRY_DELAYS = [700, 2000];
+
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+/** An error we already have a useful message for — never retried. */
 class ChatError extends Error {}
 
 const SUGGESTIONS = [
@@ -116,8 +126,10 @@ export default function ChatBot() {
   const [copiedIndex, setCopiedIndex] = useState(null);
   const [inputFocused, setInputFocused] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
+  const [backendStatus, setBackendStatus] = useState("checking");
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
+  const abortRef = useRef(null);
 
   useEffect(() => {
     const onExternalOpen = () => setOpen(true);
@@ -129,15 +141,39 @@ export default function ChatBot() {
   // very first chat request after a visitor lands can take 30-50s just to
   // wake it up. Pinging the lightweight health endpoint as soon as the
   // page loads gives it a head start before the visitor ever opens chat.
-  useEffect(() => {
-    fetch(`${API_URL}/api/health`).catch(() => {});
+  // The result also drives the status dot, so a visitor can see the
+  // assistant is unreachable before they bother typing a question.
+  const probeHealth = useCallback(async () => {
+    const controller = new AbortController();
+    const timer = setTimeout(() => controller.abort(), HEALTH_TIMEOUT);
+    try {
+      const res = await fetch(`${API_URL}/api/health`, { signal: controller.signal });
+      const ok = res.ok;
+      setBackendStatus(ok ? "online" : "offline");
+      return ok;
+    } catch {
+      setBackendStatus("offline");
+      return false;
+    } finally {
+      clearTimeout(timer);
+    }
   }, []);
+
+  useEffect(() => {
+    probeHealth();
+  }, [probeHealth]);
+
+  // Abort any in-flight answer if the widget goes away mid-stream.
+  useEffect(() => () => abortRef.current?.abort(), []);
 
   useEffect(() => {
     if (open) {
       setHasOpenedOnce(true);
+      if (backendStatus !== "online") probeHealth();
       setTimeout(() => inputRef.current?.focus(), 250);
     }
+    // Re-probing is tied to opening, not to every status change.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   useEffect(() => {
@@ -156,7 +192,13 @@ export default function ChatBot() {
     const trimmed = text.trim();
     if (!trimmed || streaming) return;
 
-    const history = messages.map((m) => ({ role: m.role, content: m.content }));
+    // Only real turns go back as history — error bubbles and the empty
+    // placeholder would otherwise be replayed to the model as if Ahmed's
+    // assistant had actually said them.
+    const history = messages
+      .filter((m) => !m.error && m.content.trim())
+      .map((m) => ({ role: m.role, content: m.content }));
+
     const userMsg = { role: "user", content: trimmed };
     const assistantMsg = { role: "assistant", content: "", model: null, error: false };
 
@@ -164,83 +206,131 @@ export default function ChatBot() {
     setInput("");
     setStreaming(true);
 
-    try {
-      const res = await fetch(`${API_URL}/api/chat`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: trimmed, history }),
-      });
-
-      if (!res.ok || !res.body) {
-        if (res.status === 503) {
-          throw new ChatError("The assistant backend is running but isn't fully configured yet (missing API key).");
-        }
-        if (res.status === 429) {
-          throw new ChatError("Too many messages right now — give it a moment and try again.");
-        }
-        throw new ChatError(`Something went wrong talking to the assistant (status ${res.status}).`);
-      }
-
-      const reader = res.body.getReader();
-      const decoder = new TextDecoder();
-      let buffer = "";
-
-      while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-        buffer += decoder.decode(value, { stream: true });
-
-        const events = buffer.split("\n\n");
-        buffer = events.pop() ?? "";
-
-        for (const evt of events) {
-          const line = evt.trim();
-          if (!line.startsWith("data:")) continue;
-          const raw = line.slice(5).trim();
-          if (raw === "[DONE]") continue;
-
-          let parsed;
-          try {
-            parsed = JSON.parse(raw);
-          } catch {
-            continue;
-          }
-
-          if (parsed.type === "delta") {
-            setMessages((prev) => {
-              const next = [...prev];
-              const last = next[next.length - 1];
-              next[next.length - 1] = { ...last, content: last.content + parsed.text, model: parsed.model };
-              return next;
-            });
-          } else if (parsed.type === "error") {
-            setMessages((prev) => {
-              const next = [...prev];
-              next[next.length - 1] = {
-                ...next[next.length - 1],
-                content: "I couldn't reach any model just now — mind trying again in a moment?",
-                error: true,
-              };
-              return next;
-            });
-          }
-        }
-      }
-    } catch (err) {
-      const message =
-        err instanceof ChatError ? err.message : "I couldn't connect to the assistant backend. Is it running?";
+    // The placeholder is always last: input is disabled while streaming.
+    const patchAnswer = (patch) =>
       setMessages((prev) => {
         const next = [...prev];
-        next[next.length - 1] = {
-          ...next[next.length - 1],
-          content: message,
-          error: true,
-        };
+        next[next.length - 1] = { ...next[next.length - 1], ...patch };
         return next;
       });
-    } finally {
-      setStreaming(false);
+
+    let received = "";
+    let model = null;
+    let failure = null;
+
+    for (let attempt = 0; ; attempt++) {
+      const controller = new AbortController();
+      abortRef.current = controller;
+      let timedOut = false;
+      const timer = setTimeout(() => {
+        timedOut = true;
+        controller.abort();
+      }, REQUEST_TIMEOUT);
+
+      try {
+        const res = await fetch(`${API_URL}/api/chat`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message: trimmed, history }),
+          signal: controller.signal,
+        });
+
+        if (!res.ok || !res.body) {
+          if (res.status === 503) {
+            throw new ChatError("The assistant backend is running but isn't fully configured yet (missing API key).");
+          }
+          if (res.status === 429) {
+            throw new ChatError("Too many messages right now — give it a moment and try again.");
+          }
+          if (res.status >= 500) {
+            // Transient server-side hiccup: worth one more shot.
+            throw new Error(`server ${res.status}`);
+          }
+          throw new ChatError(`Something went wrong talking to the assistant (status ${res.status}).`);
+        }
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder();
+        let buffer = "";
+        let streamError = null;
+
+        while (true) {
+          const { done, value } = await reader.read();
+          if (done) break;
+          buffer += decoder.decode(value, { stream: true });
+
+          const events = buffer.split("\n\n");
+          buffer = events.pop() ?? "";
+
+          for (const evt of events) {
+            const line = evt.trim();
+            if (!line.startsWith("data:")) continue;
+            const raw = line.slice(5).trim();
+            if (raw === "[DONE]") continue;
+
+            let parsed;
+            try {
+              parsed = JSON.parse(raw);
+            } catch {
+              continue;
+            }
+
+            if (parsed.type === "delta") {
+              received += parsed.text;
+              model = parsed.model ?? model;
+              patchAnswer({ content: received, model });
+            } else if (parsed.type === "error") {
+              streamError = new ChatError(
+                "I couldn't reach any model just now — mind trying again in a moment?"
+              );
+            }
+          }
+        }
+
+        if (streamError) throw streamError;
+        failure = null;
+        setBackendStatus("online");
+        break;
+      } catch (err) {
+        failure = timedOut
+          ? new ChatError("That took longer than expected — the model may be busy. Try asking again.")
+          : err;
+
+        // Retry only a connection-level failure that produced nothing yet;
+        // never replay a request that already streamed part of an answer.
+        const retryable = !(failure instanceof ChatError) && received === "";
+        if (retryable && attempt < RETRY_DELAYS.length) {
+          await sleep(RETRY_DELAYS[attempt]);
+          continue;
+        }
+        break;
+      } finally {
+        clearTimeout(timer);
+        abortRef.current = null;
+      }
     }
+
+    if (failure) {
+      if (received) {
+        // Keep what did arrive rather than replacing a partial answer
+        // with an error — the visitor can still read it.
+        patchAnswer({ content: `${received}\n\n— the connection dropped mid-answer, ask again for the rest.` });
+      } else if (failure instanceof ChatError) {
+        patchAnswer({ content: failure.message, error: true });
+      } else {
+        setBackendStatus("offline");
+        patchAnswer({
+          content: "I can't reach the assistant backend right now. It may still be waking up — try again in a moment.",
+          error: true,
+        });
+      }
+    } else if (!received.trim()) {
+      // A stream that closes clean but empty used to leave the typing dots
+      // spinning forever with no answer at all.
+      patchAnswer({ content: "The model returned an empty answer — mind asking that again?", error: true });
+    }
+
+    setStreaming(false);
   };
 
   const handleSubmit = (e) => {
@@ -334,11 +424,27 @@ export default function ChatBot() {
                 <p className="text-sm font-semibold text-[var(--color-ink)]">Ask about Ahmed</p>
                 <p className="text-[11px] text-[var(--color-ink-faint)] flex items-center gap-1.5">
                   <motion.span
-                    className="w-1.5 h-1.5 rounded-full bg-emerald-400"
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      backendStatus === "online"
+                        ? "bg-emerald-400"
+                        : backendStatus === "offline"
+                          ? "bg-red-400"
+                          : "bg-amber-400"
+                    }`}
                     animate={{ opacity: [1, 0.4, 1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  RAG-powered · skills, experience, projects
+                  {backendStatus === "offline" ? (
+                    <button
+                      data-cursor="hover"
+                      onClick={probeHealth}
+                      className="underline underline-offset-2 hover:text-[var(--color-ink)] transition-colors"
+                    >
+                      Assistant offline — retry connection
+                    </button>
+                  ) : (
+                    "RAG-powered · skills, experience, projects"
+                  )}
                 </p>
               </div>
               <button

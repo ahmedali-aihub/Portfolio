@@ -12,6 +12,8 @@ than just surfacing the error.
 """
 
 import json
+import logging
+import time
 from collections.abc import AsyncIterator
 
 import httpx
@@ -32,6 +34,15 @@ SYSTEM_PROMPT = (
     "getting in touch with him. Never withhold it, hedge, or suggest the visitor look "
     "elsewhere when the answer is already present in the context."
 )
+
+
+logger = logging.getLogger("portfolio.chat")
+
+# A free model can sit silent for a while before its first token, so the
+# read timeout has to be generous — but the whole fallback chain still
+# needs to finish before the browser gives up on the request.
+REQUEST_TIMEOUT = httpx.Timeout(60.0, connect=10.0, read=60.0, write=15.0)
+CHAIN_DEADLINE = 65.0
 
 
 class AllModelsUnavailable(Exception):
@@ -66,11 +77,18 @@ async def stream_chat(user_message: str, context_chunks: list[str], history: lis
     ]
 
     errors: list[str] = []
+    started = time.monotonic()
 
     for model in FALLBACK_MODELS:
+        # Stop starting new attempts once the client is about to time out —
+        # better to report the failure than to hang with no answer at all.
+        if time.monotonic() - started > CHAIN_DEADLINE:
+            errors.append("fallback chain deadline reached")
+            break
+
         got_any = False
         try:
-            async with httpx.AsyncClient(timeout=httpx.Timeout(15.0, connect=6.0)) as client:
+            async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
                 async with client.stream(
                     "POST", OPENROUTER_URL, headers=_headers(), json=_build_payload(model, messages)
                 ) as response:
@@ -98,6 +116,7 @@ async def stream_chat(user_message: str, context_chunks: list[str], history: lis
                 yield {"type": "done", "model": model}
                 return
             errors.append(f"{model} -> no content returned")
+            logger.warning("model %s returned no content, falling through", model)
 
         except Exception as exc:  # noqa: BLE001 - deliberately broad, this is a best-effort fallback chain
             if got_any:
@@ -105,7 +124,8 @@ async def stream_chat(user_message: str, context_chunks: list[str], history: lis
                 # silently retry another one and stitch answers together.
                 yield {"type": "done", "model": model, "interrupted": True}
                 return
-            errors.append(f"{model} -> {exc}")
+            errors.append(f"{model} -> {type(exc).__name__}: {exc}")
+            logger.warning("model %s failed (%s), trying next", model, type(exc).__name__)
             continue
 
     raise AllModelsUnavailable("; ".join(errors) or "no models configured")
