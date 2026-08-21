@@ -31,6 +31,18 @@ const HEALTH_TIMEOUT = 10000;
 // Connection-level failures only, and only before any token has arrived.
 const RETRY_DELAYS = [700, 2000];
 
+// Free-tier hosts (Render) suspend an idle service and take roughly this
+// long to boot it again. The countdown shown to a visitor is an estimate,
+// not a promise — health is polled throughout, so it clears the moment the
+// server actually answers, and keeps waiting past zero if it needs longer.
+const WAKE_ESTIMATE_SECONDS = 50;
+const WAKE_GIVE_UP_SECONDS = 90;
+const WAKE_POLL_EVERY = 3;
+
+// A local backend can't be "asleep" — if it doesn't answer, it isn't
+// running, so there is nothing to wait for and we say so immediately.
+const IS_LOCAL_API = /^https?:\/\/(localhost|127\.0\.0\.1)(:|\/|$)/.test(API_URL);
+
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
 /** An error we already have a useful message for — never retried. */
@@ -127,6 +139,7 @@ export default function ChatBot() {
   const [inputFocused, setInputFocused] = useState(false);
   const [showInfo, setShowInfo] = useState(false);
   const [backendStatus, setBackendStatus] = useState("checking");
+  const [wakeSecondsLeft, setWakeSecondsLeft] = useState(WAKE_ESTIMATE_SECONDS);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);
   const abortRef = useRef(null);
@@ -143,25 +156,66 @@ export default function ChatBot() {
   // page loads gives it a head start before the visitor ever opens chat.
   // The result also drives the status dot, so a visitor can see the
   // assistant is unreachable before they bother typing a question.
-  const probeHealth = useCallback(async () => {
+  /** Raw reachability check — no state writes, safe to call in a loop. */
+  const pingHealth = useCallback(async () => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), HEALTH_TIMEOUT);
     try {
       const res = await fetch(`${API_URL}/api/health`, { signal: controller.signal });
-      const ok = res.ok;
-      setBackendStatus(ok ? "online" : "offline");
-      return ok;
+      return res.ok;
     } catch {
-      setBackendStatus("offline");
       return false;
     } finally {
       clearTimeout(timer);
     }
   }, []);
 
+  const probeHealth = useCallback(async () => {
+    setBackendStatus("checking");
+    const ok = await pingHealth();
+    if (ok) {
+      setBackendStatus("online");
+    } else {
+      setWakeSecondsLeft(WAKE_ESTIMATE_SECONDS);
+      setBackendStatus(IS_LOCAL_API ? "offline" : "waking");
+    }
+    return ok;
+  }, [pingHealth]);
+
   useEffect(() => {
     probeHealth();
   }, [probeHealth]);
+
+  // While the host boots the service, count down and keep knocking. The
+  // countdown is cosmetic; only a real health response ends the wait.
+  useEffect(() => {
+    if (backendStatus !== "waking") return;
+
+    let cancelled = false;
+    let sinceLastPoll = 0;
+    const startedAt = Date.now();
+
+    const id = setInterval(async () => {
+      const elapsed = Math.round((Date.now() - startedAt) / 1000);
+      setWakeSecondsLeft(Math.max(0, WAKE_ESTIMATE_SECONDS - elapsed));
+
+      if (++sinceLastPoll >= WAKE_POLL_EVERY) {
+        sinceLastPoll = 0;
+        const ok = await pingHealth();
+        if (cancelled) return;
+        if (ok) {
+          setBackendStatus("online");
+          return;
+        }
+      }
+      if (!cancelled && elapsed >= WAKE_GIVE_UP_SECONDS) setBackendStatus("offline");
+    }, 1000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(id);
+    };
+  }, [backendStatus, pingHealth]);
 
   // Abort any in-flight answer if the widget goes away mid-stream.
   useEffect(() => () => abortRef.current?.abort(), []);
@@ -317,10 +371,19 @@ export default function ChatBot() {
         patchAnswer({ content: `${received}\n\n— the connection dropped mid-answer, ask again for the rest.` });
       } else if (failure instanceof ChatError) {
         patchAnswer({ content: failure.message, error: true });
-      } else {
+      } else if (IS_LOCAL_API) {
         setBackendStatus("offline");
         patchAnswer({
-          content: "I can't reach the assistant backend right now. It may still be waking up — try again in a moment.",
+          content: "I can't reach the assistant backend — it doesn't look like it's running.",
+          error: true,
+        });
+      } else {
+        // Hosted and unreachable almost always means still booting: restart
+        // the countdown so the visitor sees progress instead of a dead end.
+        setWakeSecondsLeft(WAKE_ESTIMATE_SECONDS);
+        setBackendStatus("waking");
+        patchAnswer({
+          content: "The assistant is still waking up. Give it a few seconds and ask me again.",
           error: true,
         });
       }
@@ -434,7 +497,11 @@ export default function ChatBot() {
                     animate={{ opacity: [1, 0.4, 1] }}
                     transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
                   />
-                  {backendStatus === "offline" ? (
+                  {backendStatus === "waking" ? (
+                    <span className="truncate">
+                      Waking up · about {wakeSecondsLeft}s
+                    </span>
+                  ) : backendStatus === "offline" ? (
                     <button
                       data-cursor="hover"
                       onClick={probeHealth}
@@ -504,6 +571,12 @@ export default function ChatBot() {
                     <div className="text-sm text-[var(--color-ink-dim)] leading-relaxed pt-1">
                       Hi — I'm a small RAG assistant trained on Ahmed's portfolio. Ask me about his skills,
                       experience, or projects.
+                      {backendStatus === "waking" && (
+                        <span className="block mt-2 text-[var(--color-ink-faint)]">
+                          I'm just booting up — go ahead and ask, your question will be answered as soon as
+                          I'm awake.
+                        </span>
+                      )}
                     </div>
                   </div>
                   <div className="flex flex-wrap gap-2">
@@ -580,6 +653,57 @@ export default function ChatBot() {
                 );
               })}
             </div>
+
+            <AnimatePresence initial={false}>
+              {(backendStatus === "waking" || backendStatus === "offline") && (
+                <motion.div
+                  initial={{ opacity: 0, height: 0 }}
+                  animate={{ opacity: 1, height: "auto" }}
+                  exit={{ opacity: 0, height: 0 }}
+                  transition={{ duration: 0.25, ease: [0.16, 1, 0.3, 1] }}
+                  className="shrink-0 overflow-hidden border-t border-[var(--color-line)]"
+                >
+                  {backendStatus === "waking" ? (
+                    <div className="flex items-start gap-2.5 px-4 py-3 bg-amber-400/[0.06]">
+                      <Loader2 size={13} className="mt-0.5 shrink-0 animate-spin text-amber-300/80" />
+                      <p className="text-[11.5px] leading-relaxed text-[var(--color-ink-dim)]">
+                        <span className="text-[var(--color-ink)]">Waking the assistant.</span> It sleeps
+                        when nobody's chatting, so the first answer takes a moment.{" "}
+                        {wakeSecondsLeft > 0 ? (
+                          <>
+                            Ready in about{" "}
+                            <span className="font-mono text-[var(--color-ink)] tabular-nums">
+                              {wakeSecondsLeft}s
+                            </span>
+                            .
+                          </>
+                        ) : (
+                          "Almost there — hang on a few more seconds."
+                        )}
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="flex items-start gap-2.5 px-4 py-3 bg-red-400/[0.06]">
+                      <Info size={13} className="mt-0.5 shrink-0 text-red-300/80" />
+                      <p className="text-[11.5px] leading-relaxed text-[var(--color-ink-dim)]">
+                        <span className="text-[var(--color-ink)]">The assistant is offline.</span>{" "}
+                        {IS_LOCAL_API
+                          ? "Start the backend with npm run dev:api, then "
+                          : "It couldn't be reached after waiting. "}
+                        <button
+                          data-cursor="hover"
+                          onClick={probeHealth}
+                          className="underline underline-offset-2 hover:text-[var(--color-ink)] transition-colors"
+                        >
+                          try again
+                        </button>
+                        .
+                      </p>
+                    </div>
+                  )}
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             <form
               onSubmit={handleSubmit}
