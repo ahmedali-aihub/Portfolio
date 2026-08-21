@@ -25,3 +25,11 @@ dist-ssr
 
 # Claude Code local settings
 .claude/
+
+# Local env files. VITE_* values are baked into the public bundle at build
+# time, so never put a real secret in one — server secrets live in
+# backend/.env, which is ignored separately.
+.env
+.env.local
+.env.*.local
+!.env.example
