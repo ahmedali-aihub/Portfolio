@@ -13,6 +13,7 @@ than just surfacing the error.
 
 import json
 import logging
+import re
 import time
 from collections.abc import AsyncIterator
 
@@ -22,11 +23,11 @@ from app.config import FALLBACK_MODELS, OPENROUTER_API_KEY, OPENROUTER_URL, SITE
 
 SYSTEM_PROMPT = (
     "You are the AI assistant embedded in Ahmed Ali's personal portfolio website. "
-    "You answer visitor questions about Ahmed — his skills, experience, and projects — "
-    "speaking about him in the third person, in a friendly, concise, conversational tone. "
-    "Only use the context provided below; if something isn't covered in it (for example, "
-    "personal hobbies that haven't been published yet), say plainly that you don't have "
-    "that information rather than guessing or inventing details. Keep answers short (2-4 "
+    "You answer visitor questions about Ahmed — his skills, experience, projects, and a "
+    "few personal details like his age and hobbies — speaking about him in the third "
+    "person, in a friendly, concise, conversational tone. Only use the context provided "
+    "below; if something isn't covered in it, say plainly that you don't have that "
+    "information rather than guessing or inventing details. Keep answers short (2-4 "
     "sentences) unless the visitor asks for a list, in which case use markdown bullets.\n\n"
     "If the context below includes a phone number, GitHub URL, or LinkedIn URL, treat that "
     "as information Ahmed has explicitly published for visitors to use — always state it "
@@ -47,6 +48,27 @@ CHAIN_DEADLINE = 65.0
 
 class AllModelsUnavailable(Exception):
     pass
+
+
+# Free models occasionally return their internal moderation verdict or
+# reasoning scratchpad as if it were the chat answer, instead of an
+# actual response, e.g.:
+#   "User Safety: unsafe\nSafety Categories: PII/Privacy..."
+#   "Here's a thinking process:\n1. Analyze User Input..."
+# Checked against the first buffered chunk of a response, before any of
+# it reaches the visitor — cheap prefix/substring checks, not a full
+# classifier, since this only has to catch the shapes actually observed.
+_REJECT_PATTERNS = [
+    re.compile(r"^\s*user safety\s*:", re.IGNORECASE),
+    re.compile(r"^\s*safety categories\s*:", re.IGNORECASE),
+    re.compile(r"^\s*\**\s*here'?s a thinking process\b", re.IGNORECASE),
+    re.compile(r"^\s*\**\s*(let me |i need to |i'll |i will )?(think|analyze)\b.*:\s*$", re.IGNORECASE | re.MULTILINE),
+]
+_PEEK_CHARS = 400
+
+
+def _looks_like_bad_output(buffered: str) -> bool:
+    return any(p.search(buffered[:_PEEK_CHARS]) for p in _REJECT_PATTERNS)
 
 
 def _build_payload(model: str, messages: list[dict]) -> dict:
@@ -87,6 +109,8 @@ async def stream_chat(user_message: str, context_chunks: list[str], history: lis
             break
 
         got_any = False
+        committed = False  # past the shape-check, actively streaming to the visitor
+        buffered = ""
         try:
             async with httpx.AsyncClient(timeout=REQUEST_TIMEOUT) as client:
                 async with client.stream(
@@ -108,18 +132,46 @@ async def stream_chat(user_message: str, context_chunks: list[str], history: lis
                         except json.JSONDecodeError:
                             continue
                         delta = obj.get("choices", [{}])[0].get("delta", {}).get("content")
-                        if delta:
-                            got_any = True
-                            yield {"type": "delta", "text": delta, "model": model}
+                        if not delta:
+                            continue
+                        got_any = True
 
-            if got_any:
+                        if committed:
+                            yield {"type": "delta", "text": delta, "model": model}
+                            continue
+
+                        buffered += delta
+                        if _looks_like_bad_output(buffered):
+                            errors.append(f"{model} -> rejected: looked like a moderation/reasoning artifact, not an answer")
+                            logger.warning("model %s produced a malformed answer, falling through", model)
+                            buffered = ""
+                            break
+                        if len(buffered) >= _PEEK_CHARS:
+                            # Cleared the peek window without tripping a
+                            # pattern — safe to commit and stream the rest live.
+                            committed = True
+                            yield {"type": "delta", "text": buffered, "model": model}
+                            buffered = ""
+
+            if committed:
                 yield {"type": "done", "model": model}
                 return
+            if buffered:
+                # Stream ended (e.g. a short answer) before hitting the peek
+                # window, and it never tripped a reject pattern — it's a
+                # complete, validated answer, just never flushed yet.
+                yield {"type": "delta", "text": buffered, "model": model}
+                yield {"type": "done", "model": model}
+                return
+            if got_any:
+                # Content arrived but was discarded as malformed — treat like
+                # any other failed attempt and fall through to the next model.
+                continue
             errors.append(f"{model} -> no content returned")
             logger.warning("model %s returned no content, falling through", model)
 
         except Exception as exc:  # noqa: BLE001 - deliberately broad, this is a best-effort fallback chain
-            if got_any:
+            if committed:
                 # Already streamed real content for this model — don't
                 # silently retry another one and stitch answers together.
                 yield {"type": "done", "model": model, "interrupted": True}

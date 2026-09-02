@@ -8,11 +8,14 @@ PROFILE = {
     "name": "Ahmed Ali",
     "title": "AI/ML Engineer",
     "subtitle": "GenAI & Agentic Systems",
+    "age": 19,
     "location": "Hyderabad, India",
     "phone": "+91 90001 89973",
     "github": "https://github.com/ahmedali-aihub",
     "linkedin": "https://www.linkedin.com/in/ahmed-ali-aiml2006/",
 }
+
+HOBBIES = ["gym", "swimming", "travelling"]
 
 EXPERIENCE = [
     {
@@ -111,8 +114,20 @@ def build_documents() -> list[dict]:
     docs.append({
         "id": "profile",
         "text": (
-            f"{PROFILE['name']} is a {PROFILE['title']} focused on {PROFILE['subtitle']}, "
-            f"based in {PROFILE['location']}."
+            f"{PROFILE['name']} is a {PROFILE['age']}-year-old {PROFILE['title']} focused on "
+            f"{PROFILE['subtitle']}, based in {PROFILE['location']}."
+        ),
+    })
+
+    docs.append({
+        "id": "hobbies",
+        "text": (
+            f"Outside of work, {PROFILE['name']}'s hobbies and interests include "
+            + ", ".join(HOBBIES)
+            + ". He goes to the gym, swims, and enjoys travelling in his free time. "
+            "When he's not working or coding, for fun and to relax and unwind, Ahmed likes "
+            "fitness and working out at the gym, swimming, and travelling to new places — "
+            "that's what he does outside of work and in his personal life."
         ),
     })
 
@@ -154,10 +169,5 @@ def build_documents() -> list[dict]:
             f"He is located in {PROFILE['location']}."
         ),
     })
-
-    # No hobbies have been provided yet — intentionally omitted so the
-    # assistant answers honestly ("I don't have that information") rather
-    # than inventing personal details. Add a "hobbies" doc here once real
-    # info is available.
 
     return docs

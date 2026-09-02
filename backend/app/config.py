@@ -13,18 +13,27 @@ SITE_NAME = os.getenv("SITE_NAME", "Ahmed Ali Portfolio")
 
 # Ordered fallback chain of free-tier OpenRouter models. If a model is
 # rate-limited, errors, or is temporarily removed, the next one is tried
-# automatically. OpenRouter's free-model lineup rotates — check
-# https://openrouter.ai/models?max_price=0 and update this list if any
-# of these stop resolving.
+# automatically. OpenRouter's free-model lineup rotates fast — verified
+# live against https://openrouter.ai/api/v1/models on 2026-08-20;
+# "openai/gpt-oss-20b:free" and "nvidia/nemotron-nano-9b-v2:free" had
+# already been pulled from the free tier as of that check and are gone
+# from this list. Re-verify at https://openrouter.ai/models?max_price=0
+# if answers start failing.
+#
+# Deliberately excludes "openrouter/free" — it's a meta-router to whatever
+# free model OpenRouter picks that day, and has been observed streaming
+# its raw chain-of-thought or a safety-classifier verdict ("User Safety:
+# unsafe...") as if it were the answer. Named models below are checked
+# against llm.py's output-shape guard regardless, but a router with no
+# fixed identity isn't worth the fallback slot.
 FALLBACK_MODELS = [
     m.strip()
     for m in os.getenv(
         "OPENROUTER_MODELS",
         "google/gemma-4-26b-a4b-it:free,"
-        "openai/gpt-oss-20b:free,"
-        "nvidia/nemotron-nano-9b-v2:free,"
         "google/gemma-4-31b-it:free,"
-        "openrouter/free",
+        "nvidia/nemotron-3.5-lightning:free,"
+        "liquid/lfm-2.5-2.6b:free",
     ).split(",")
     if m.strip()
 ]
