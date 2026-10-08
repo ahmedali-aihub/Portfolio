@@ -80,7 +80,7 @@ PROJECTS = [
 TECH_STACK = [
     {
         "group": "Agentic Frameworks & LLMs",
-        "items": ["LangChain", "LangGraph", "MCP Servers", "Anthropic", "OpenRouter", "Hugging Face", "Agentic AI", "Prompt Engineering"],
+        "items": ["LangChain", "LangGraph", "CrewAI", "AutoGen", "MCP Servers", "Anthropic", "OpenRouter", "Hugging Face", "Agentic AI", "Prompt Engineering"],
     },
     {
         "group": "ML & Modeling",
@@ -100,7 +100,7 @@ TECH_STACK = [
     },
     {
         "group": "Developer Workflow",
-        "items": ["Git", "GitHub", "Claude Code"],
+        "items": ["Git", "GitHub", "GitHub Actions", "Linux", "Claude Code"],
     },
 ]
 

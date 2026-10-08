@@ -68,6 +68,8 @@ export const techStack = [
     items: [
       { label: "LangChain", icon: "langchain", color: "#2DD4BF" },
       { label: "LangGraph", icon: "langgraph", color: "#8B5CF6" },
+      { label: "CrewAI", icon: "crewai", color: "#FF5A50" },
+      { label: "AutoGen", icon: "autogen", color: "#0EA5E9" },
       { label: "MCP Servers", icon: "mcp", color: "#DA7756" },
       { label: "Anthropic", icon: "anthropic", color: "#D97757" },
       { label: "OpenRouter", icon: "openrouter", color: "#6366F1" },
@@ -133,6 +135,8 @@ export const techStack = [
     items: [
       { label: "Git", icon: "git", color: "#F05032" },
       { label: "GitHub", icon: "github", color: "#FFFFFF" },
+      { label: "GitHub Actions", icon: "githubactions", color: "#2088FF" },
+      { label: "Linux", icon: "linux", color: "#FCC624" },
       { label: "Claude Code", icon: "claude", color: "#D97757" },
     ],
   },
