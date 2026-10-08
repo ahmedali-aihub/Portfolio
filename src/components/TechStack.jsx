@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bot, Terminal, Languages, Puzzle, Search, Database, TestTube2, Plug } from "lucide-react";
+import { Bot, Terminal, Languages, Puzzle, Search, Database, TestTube2, Plug, Cpu, Activity, FlaskConical, ShieldCheck } from "lucide-react";
 import {
   SiLangchain,
   SiLanggraph,
@@ -25,6 +25,8 @@ import {
   SiGit,
   SiGithub,
   SiClaude,
+  SiOllama,
+  SiVllm,
 } from "react-icons/si";
 import { techStack } from "../data/content";
 import Reveal from "./Reveal";
@@ -61,6 +63,12 @@ const ICONS = {
   git: SiGit,
   github: SiGithub,
   claude: SiClaude,
+  ollama: SiOllama,
+  vllm: SiVllm,
+  cpu: Cpu,
+  activity: Activity,
+  flask: FlaskConical,
+  shield: ShieldCheck,
 };
 
 const list = {

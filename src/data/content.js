@@ -115,6 +115,19 @@ export const techStack = [
     ],
   },
   {
+    group: "LLM Inference, Evals & Safety",
+    description: "Serving open models locally and at scale, then tracing, evaluating, and guarding what they output.",
+    items: [
+      { label: "Transformers", icon: "huggingface", color: "#FFD21E" },
+      { label: "Ollama", icon: "ollama", color: "#E5E7EB" },
+      { label: "vLLM", icon: "vllm", color: "#30A2FF" },
+      { label: "LLM Inference", icon: "cpu", color: "#F97316" },
+      { label: "LangSmith", icon: "activity", color: "#2DD4BF" },
+      { label: "LLM Evals", icon: "flask", color: "#F472B6" },
+      { label: "LLM Guardrails", icon: "shield", color: "#34D399" },
+    ],
+  },
+  {
     group: "Developer Workflow",
     description: "Version control, code review, and AI-assisted engineering behind every repo.",
     items: [

@@ -95,6 +95,10 @@ TECH_STACK = [
         "items": ["FastAPI", "Streamlit", "Docker", "MySQL", "SQLAlchemy", "Selenium", "Playwright", "REST APIs"],
     },
     {
+        "group": "LLM Inference, Evals & Safety",
+        "items": ["Transformers", "Ollama", "vLLM", "LLM Inference", "LangSmith", "LLM Evals", "LLM Guardrails"],
+    },
+    {
         "group": "Developer Workflow",
         "items": ["Git", "GitHub", "Claude Code"],
     },
