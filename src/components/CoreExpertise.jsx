@@ -1,9 +1,28 @@
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { focusAreas } from "../data/content";
 import Reveal from "./Reveal";
 
 export default function CoreExpertise() {
+  const ref = useRef(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start end", "start 0.35"],
+  });
+
+  // The light panel rises and settles into place as it enters, like a
+  // card being laid over the dark page.
+  const scale = useTransform(scrollYProgress, [0, 1], [reduced ? 1 : 0.9, 1]);
+  const y = useTransform(scrollYProgress, [0, 1], [reduced ? 0 : 70, 0]);
+  const radius = useTransform(scrollYProgress, [0, 1], [reduced ? 40 : 72, 40]);
+
   return (
-    <section className="relative bg-[var(--color-paper)] text-[#141414] rounded-[2rem] md:rounded-[3rem] mx-3 md:mx-6 my-4 py-20 md:py-28 px-6 md:px-14">
+    <motion.section
+      ref={ref}
+      style={{ scale, y, borderRadius: radius, transformOrigin: "50% 0%" }}
+      className="relative bg-[var(--color-paper)] text-[#141414] mx-3 md:mx-6 my-4 py-20 md:py-28 px-6 md:px-14 will-change-transform"
+    >
       <Reveal>
         <p className="font-heading text-xs uppercase tracking-[0.25em] text-black/40 mb-4">
           Core Expertise
@@ -30,6 +49,6 @@ export default function CoreExpertise() {
           </Reveal>
         ))}
       </div>
-    </section>
+    </motion.section>
   );
 }

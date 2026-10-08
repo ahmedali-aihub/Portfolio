@@ -1,4 +1,5 @@
-import { motion } from "framer-motion";
+import { useRef } from "react";
+import { motion, useReducedMotion, useScroll, useTransform } from "framer-motion";
 import { profile } from "../data/content";
 import ChromeText from "./ChromeText";
 import MagneticButton from "./MagneticButton";
@@ -26,16 +27,33 @@ const fadeUp = {
 };
 
 export default function Hero({ loaded = true }) {
+  const sectionRef = useRef(null);
+  const reduced = useReducedMotion();
+  const { scrollYProgress } = useScroll({
+    target: sectionRef,
+    offset: ["start start", "end start"],
+  });
+
+  // Depth: the orb drifts down slowly while the copy lifts away and fades,
+  // so the hero hands off to the next section instead of just scrolling off.
+  const orbY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : 180]);
+  const orbScale = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 1.12]);
+  const copyY = useTransform(scrollYProgress, [0, 1], [0, reduced ? 0 : -90]);
+  const copyOpacity = useTransform(scrollYProgress, [0, 0.65], [1, reduced ? 1 : 0]);
+  const copyScale = useTransform(scrollYProgress, [0, 1], [1, reduced ? 1 : 0.95]);
+
   return (
-    <section id="top" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 md:px-10 pt-28 pb-28 sm:pb-16">
+    <section ref={sectionRef} id="top" className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 md:px-10 pt-28 pb-28 sm:pb-16">
       <div className="pointer-events-none absolute inset-0 -z-10">
-        <motion.div
-          initial={{ opacity: 0, y: -30 }}
-          animate={loaded ? { opacity: 1, y: 0 } : {}}
-          transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
-          className="absolute left-1/2 -translate-x-1/2 top-[-22%] w-[clamp(200px,25vw,300px)]"
-        >
-          <MoonOrb />
+        <motion.div style={{ y: orbY, scale: orbScale }} className="absolute inset-0">
+          <motion.div
+            initial={{ opacity: 0, y: -30 }}
+            animate={loaded ? { opacity: 1, y: 0 } : {}}
+            transition={{ duration: 1.8, ease: [0.16, 1, 0.3, 1] }}
+            className="absolute left-1/2 -translate-x-1/2 top-[-22%] w-[clamp(200px,25vw,300px)]"
+          >
+            <MoonOrb />
+          </motion.div>
         </motion.div>
 
         <div
@@ -45,7 +63,10 @@ export default function Hero({ loaded = true }) {
         <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-[var(--color-void)]" />
       </div>
 
-      <div className="relative max-w-3xl mx-auto w-full text-center">
+      <motion.div
+        style={{ y: copyY, opacity: copyOpacity, scale: copyScale }}
+        className="relative max-w-3xl mx-auto w-full text-center will-change-transform"
+      >
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: loaded ? 1 : 0 }}
@@ -116,7 +137,7 @@ export default function Hero({ loaded = true }) {
             Contact Me
           </MagneticButton>
         </motion.div>
-      </div>
+      </motion.div>
     </section>
   );
 }

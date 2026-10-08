@@ -1,5 +1,7 @@
 import { useCallback, useState } from "react";
 import { ReactLenis } from "lenis/react";
+import { MotionConfig } from "framer-motion";
+import ScrollProgress from "./components/ScrollProgress";
 import Preloader from "./components/Preloader";
 import CustomCursor from "./components/CustomCursor";
 import CommandPalette from "./components/CommandPalette";
@@ -25,8 +27,10 @@ function App() {
 
   return (
     <ReactLenis root options={{ lerp: 0.1, duration: 1.2, smoothWheel: true }}>
+      <MotionConfig reducedMotion="user">
       <Preloader onReveal={handleReveal} onComplete={handleComplete} />
       <div className="noise-overlay" />
+      <ScrollProgress />
       <CustomCursor />
       <CommandPalette />
       <ChatBot />
@@ -51,6 +55,7 @@ function App() {
         </main>
         <Footer />
       </div>
+      </MotionConfig>
     </ReactLenis>
   );
 }

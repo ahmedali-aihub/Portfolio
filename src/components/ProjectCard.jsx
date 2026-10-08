@@ -14,14 +14,14 @@ export default function ProjectCard({ project, onOpen }) {
     : {};
 
   return (
-    <Reveal>
+    <Reveal className="relative">
       <Wrapper
         id={project.id}
         {...wrapperProps}
         data-cursor="hover"
         onMouseEnter={() => setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        className="group relative w-full text-left grid md:grid-cols-12 gap-4 md:gap-8 items-start md:items-center py-8 md:py-10 border-b border-[var(--color-line)] transition-colors"
+        className="group relative w-full text-left grid md:grid-cols-12 gap-4 md:gap-8 items-start md:items-center py-8 md:py-10 transition-colors"
       >
         <motion.div
           className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500"
@@ -67,6 +67,14 @@ export default function ProjectCard({ project, onOpen }) {
           </span>
         </div>
       </Wrapper>
+      <motion.span
+        aria-hidden="true"
+        initial={{ scaleX: 0 }}
+        whileInView={{ scaleX: 1 }}
+        viewport={{ once: true, amount: 1 }}
+        transition={{ duration: 1.2, delay: 0.15, ease: [0.16, 1, 0.3, 1] }}
+        className="absolute inset-x-0 bottom-0 h-px origin-left bg-[var(--color-line)]"
+      />
     </Reveal>
   );
 }

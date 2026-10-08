@@ -33,6 +33,7 @@ import {
 } from "react-icons/si";
 import { techStack } from "../data/content";
 import Reveal from "./Reveal";
+import SectionHeader from "./SectionHeader";
 
 const ICONS = {
   langchain: SiLangchain,
@@ -120,14 +121,7 @@ function SkillChip({ item }) {
 export default function TechStack() {
   return (
     <section id="stack" className="relative py-24 md:py-32 px-6 md:px-10 scroll-mt-24">
-      <Reveal className="text-center mb-16 md:mb-20">
-        <p className="font-heading text-xs uppercase tracking-[0.25em] text-[var(--color-ink-faint)] mb-4">
-          Skills
-        </p>
-        <h2 className="font-display text-4xl sm:text-5xl font-medium tracking-tight text-[var(--color-ink)]">
-          Technical stack
-        </h2>
-      </Reveal>
+      <SectionHeader eyebrow="Skills" title="Technical stack" />
 
       <div className="max-w-5xl mx-auto grid sm:grid-cols-2 gap-x-16 gap-y-14 border-t border-[var(--color-line)] pt-14">
         {techStack.map((cat, i) => (

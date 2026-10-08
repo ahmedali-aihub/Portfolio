@@ -2,6 +2,7 @@ import { useRef } from "react";
 import { motion, useInView, useScroll, useTransform } from "framer-motion";
 import { experience } from "../data/content";
 import Reveal from "./Reveal";
+import SectionHeader from "./SectionHeader";
 
 function TimelineItem({ job, index }) {
   const dotRef = useRef(null);
@@ -47,14 +48,7 @@ export default function Experience() {
   return (
     <section id="experience" className="relative py-24 md:py-32 px-6 md:px-10 scroll-mt-24">
       <div className="max-w-2xl mx-auto">
-        <Reveal className="text-center mb-16 md:mb-20">
-          <p className="font-heading text-xs uppercase tracking-[0.25em] text-[var(--color-ink-faint)] mb-4">
-            Professional Journey
-          </p>
-          <h2 className="font-display text-4xl sm:text-5xl font-medium tracking-tight text-[var(--color-ink)]">
-            Experience
-          </h2>
-        </Reveal>
+        <SectionHeader eyebrow="Professional Journey" title="Experience" />
 
         <div ref={containerRef} className="relative">
           <div className="absolute left-0 top-2 bottom-2 w-px bg-[var(--color-line)]" />

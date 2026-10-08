@@ -4,6 +4,7 @@ import { MapPin, ArrowUpRight } from "lucide-react";
 import { profile } from "../data/content";
 import { GithubIcon, LinkedinIcon } from "./icons";
 import Reveal from "./Reveal";
+import MaskText from "./MaskText";
 import MagneticButton from "./MagneticButton";
 import TiltCard from "./TiltCard";
 
@@ -55,11 +56,10 @@ export default function Contact() {
           </p>
         </Reveal>
 
-        <Reveal>
-          <h2 className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-[var(--color-ink)] mb-8">
-            Let's connect.
-          </h2>
-        </Reveal>
+        <MaskText
+          text="Let's connect."
+          className="font-display text-4xl sm:text-5xl md:text-6xl font-medium tracking-tight text-[var(--color-ink)] mb-8"
+        />
 
         <Reveal delay={0.1}>
           <p className="text-[var(--color-ink-dim)] max-w-md mx-auto mb-4 flex flex-wrap items-center justify-center gap-x-3 gap-y-1.5">
