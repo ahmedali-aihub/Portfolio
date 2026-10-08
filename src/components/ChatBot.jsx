@@ -334,6 +334,9 @@ export default function ChatBot() {
               model = parsed.model ?? model;
               patchAnswer({ content: received, model });
             } else if (parsed.type === "error") {
+              // The visitor sees a friendly line; the real per-model reasons
+              // go to the console so a failing deploy can be diagnosed.
+              console.warn("[chat] backend error:", parsed.message);
               streamError = new ChatError(
                 "I couldn't reach any model just now — mind trying again in a moment?"
               );

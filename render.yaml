@@ -30,10 +30,9 @@ services:
         sync: false
       - key: SITE_NAME
         value: Ahmed Ali Portfolio
-      # Free-tier lineup rotates; verify at
-      # https://openrouter.ai/models?max_price=0 if answers start failing.
-      - key: OPENROUTER_MODELS
-        value: google/gemma-4-26b-a4b-it:free,openai/gpt-oss-20b:free,nvidia/nemotron-nano-9b-v2:free,google/gemma-4-31b-it:free,openrouter/free
+      # OPENROUTER_MODELS is intentionally not set here: the fallback chain
+      # lives in backend/app/config.py so a stale copy of the list can't
+      # override it. Set it in the dashboard only to pin a custom chain.
 
   - type: web
     name: portfolio-web

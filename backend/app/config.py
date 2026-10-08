@@ -14,7 +14,7 @@ SITE_NAME = os.getenv("SITE_NAME", "Ahmed Ali Portfolio")
 # Ordered fallback chain of free-tier OpenRouter models. If a model is
 # rate-limited, errors, or is temporarily removed, the next one is tried
 # automatically. OpenRouter's free-model lineup rotates fast — verified
-# live against https://openrouter.ai/api/v1/models on 2026-08-20;
+# live against https://openrouter.ai/api/v1/models on 2026-10-08;
 # "openai/gpt-oss-20b:free" and "nvidia/nemotron-nano-9b-v2:free" had
 # already been pulled from the free tier as of that check and are gone
 # from this list. Re-verify at https://openrouter.ai/models?max_price=0
@@ -32,7 +32,9 @@ FALLBACK_MODELS = [
         "OPENROUTER_MODELS",
         "google/gemma-4-26b-a4b-it:free,"
         "google/gemma-4-31b-it:free,"
+        "nvidia/nemotron-3-super-120b-a12b:free,"
         "nvidia/nemotron-3.5-lightning:free,"
+        "poolside/laguna-s-2.1:free,"
         "liquid/lfm-2.5-2.6b:free",
     ).split(",")
     if m.strip()
