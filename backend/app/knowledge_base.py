@@ -80,11 +80,11 @@ PROJECTS = [
 TECH_STACK = [
     {
         "group": "Agentic Frameworks & LLMs",
-        "items": ["LangChain", "LangGraph", "MCP Servers", "Anthropic", "OpenRouter", "Agentic AI", "Prompt Engineering"],
+        "items": ["LangChain", "LangGraph", "MCP Servers", "Anthropic", "OpenRouter", "Hugging Face", "Agentic AI", "Prompt Engineering"],
     },
     {
         "group": "ML & Modeling",
-        "items": ["Python", "TensorFlow", "Keras", "PyTorch", "Scikit-learn", "NLP", "SHAP"],
+        "items": ["Python", "NumPy", "Pandas", "TensorFlow", "Keras", "PyTorch", "Scikit-learn", "NLP", "SHAP", "Jupyter"],
     },
     {
         "group": "RAG & Search",
@@ -92,7 +92,11 @@ TECH_STACK = [
     },
     {
         "group": "Backend & Tools",
-        "items": ["FastAPI", "MySQL", "SQLAlchemy", "Selenium", "Playwright"],
+        "items": ["FastAPI", "Streamlit", "Docker", "MySQL", "SQLAlchemy", "Selenium", "Playwright", "REST APIs"],
+    },
+    {
+        "group": "Developer Workflow",
+        "items": ["Git", "GitHub", "Claude Code"],
     },
 ]
 
