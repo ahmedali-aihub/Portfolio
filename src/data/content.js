@@ -130,6 +130,17 @@ export const techStack = [
     ],
   },
   {
+    group: "LLM Fundamentals & Alignment",
+    description: "Adapting, steering, and extending foundation models toward more capable, aligned systems.",
+    items: [
+      { label: "LoRA", icon: "lora", color: "#A78BFA" },
+      { label: "RLHF", icon: "rlhf", color: "#F472B6" },
+      { label: "Context Windows", icon: "context", color: "#38BDF8" },
+      { label: "Multimodal", icon: "multimodal", color: "#FBBF24" },
+      { label: "AGI", icon: "agi", color: "#34D399" },
+    ],
+  },
+  {
     group: "Developer Workflow",
     description: "Version control, code review, and AI-assisted engineering behind every repo.",
     items: [

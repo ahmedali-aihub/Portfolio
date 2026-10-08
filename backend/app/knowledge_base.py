@@ -99,6 +99,10 @@ TECH_STACK = [
         "items": ["Transformers", "Ollama", "vLLM", "LLM Inference", "LangSmith", "LLM Evals", "LLM Guardrails"],
     },
     {
+        "group": "LLM Fundamentals & Alignment",
+        "items": ["LoRA", "RLHF", "Context Windows", "Multimodal", "AGI"],
+    },
+    {
         "group": "Developer Workflow",
         "items": ["Git", "GitHub", "GitHub Actions", "Linux", "Claude Code"],
     },

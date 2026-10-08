@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bot, Terminal, Languages, Puzzle, Search, Database, TestTube2, Plug, Cpu, Activity, FlaskConical, ShieldCheck, Network } from "lucide-react";
+import { Bot, Terminal, Languages, Puzzle, Search, Database, TestTube2, Plug, Cpu, Activity, FlaskConical, ShieldCheck, Network, Layers, ScanText, Images, MessageSquareHeart, Brain } from "lucide-react";
 import {
   SiLangchain,
   SiLanggraph,
@@ -73,6 +73,11 @@ const ICONS = {
   activity: Activity,
   flask: FlaskConical,
   shield: ShieldCheck,
+  lora: Layers,
+  context: ScanText,
+  multimodal: Images,
+  rlhf: MessageSquareHeart,
+  agi: Brain,
   crewai: SiCrewai,
   autogen: Network,
   linux: SiLinux,
