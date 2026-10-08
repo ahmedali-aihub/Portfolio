@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Bot, Terminal, Languages, Puzzle, Search, Database, TestTube2 } from "lucide-react";
+import { Bot, Terminal, Languages, Puzzle, Search, Database, TestTube2, Plug } from "lucide-react";
 import {
   SiLangchain,
   SiLanggraph,
@@ -22,6 +22,9 @@ import {
   SiDocker,
   SiMysql,
   SiSelenium,
+  SiGit,
+  SiGithub,
+  SiClaude,
 } from "react-icons/si";
 import { techStack } from "../data/content";
 import Reveal from "./Reveal";
@@ -54,6 +57,10 @@ const ICONS = {
   mysql: SiMysql,
   selenium: SiSelenium,
   playwright: TestTube2,
+  plug: Plug,
+  git: SiGit,
+  github: SiGithub,
+  claude: SiClaude,
 };
 
 const list = {

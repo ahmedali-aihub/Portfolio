@@ -111,6 +111,16 @@ export const techStack = [
       { label: "MySQL", icon: "mysql", color: "#4479A1" },
       { label: "Selenium", icon: "selenium", color: "#43B02A" },
       { label: "Playwright", icon: "playwright", color: "#2EAD33" },
+      { label: "REST APIs", icon: "plug", color: "#F59E0B" },
+    ],
+  },
+  {
+    group: "Developer Workflow",
+    description: "Version control, code review, and AI-assisted engineering behind every repo.",
+    items: [
+      { label: "Git", icon: "git", color: "#F05032" },
+      { label: "GitHub", icon: "github", color: "#FFFFFF" },
+      { label: "Claude Code", icon: "claude", color: "#D97757" },
     ],
   },
 ];
