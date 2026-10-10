@@ -10,7 +10,6 @@ import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import MarqueeTicker from "./components/MarqueeTicker";
 import About from "./components/About";
-import AIBrainSection from "./components/AIBrainSection";
 import CoreExpertise from "./components/CoreExpertise";
 import TechStack from "./components/TechStack";
 import Projects from "./components/Projects";
@@ -48,7 +47,6 @@ function App() {
           <Hero loaded={reveal} />
           <MarqueeTicker />
           <About />
-          <AIBrainSection />
           <CoreExpertise />
           <TechStack />
           <Projects />
