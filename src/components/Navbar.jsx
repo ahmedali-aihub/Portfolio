@@ -139,13 +139,11 @@ export default function Navbar() {
           </motion.button>
 
           <motion.a
-            href={profile.resume}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={profile.resumePage}
             data-cursor="hover"
             whileHover={{ scale: 1.04 }}
             whileTap={{ scale: 0.97 }}
-            aria-label="Open Ahmed's resume (PDF)"
+            aria-label="Open Ahmed's interactive resume"
             className="hidden md:inline-flex items-center gap-1.5 rounded-full border border-black/10 px-4 py-2 ml-1 font-heading text-xs font-semibold text-black/70 hover:text-black hover:border-black/20 transition-colors"
           >
             <FileText size={14} strokeWidth={1.8} />
@@ -163,12 +161,10 @@ export default function Navbar() {
           </motion.a>
 
           <a
-            href={profile.resume}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={profile.resumePage}
             data-cursor="hover"
             className="md:hidden flex items-center justify-center p-1.5 ml-0.5 shrink-0 text-black/70"
-            aria-label="Open Ahmed's resume (PDF)"
+            aria-label="Open Ahmed's interactive resume"
           >
             <FileText size={16} strokeWidth={1.8} />
           </a>
