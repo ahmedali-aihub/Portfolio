@@ -15,7 +15,7 @@ export const about = {
   paragraphs: [
     "I build the layer between large language models and real systems — retrieval pipelines that ground answers in truth, agents that plan and act across tools and calendars, and classical ML models that hold up under scrutiny.",
     "My work spans the full stack of applied AI: offline model training, explainability, API-first serving, and the orchestration logic that turns a language model into something that can actually get work done.",
-    "Currently building RAG pipelines and LLM agents in production, and training the next generation of AI/ML engineers through TechZone Academy.",
+    "Currently building RAG pipelines and LLM agents at Yuva Intelli AI Solutions, while completing a Bachelor's degree in Artificial Intelligence & Machine Learning.",
   ],
 };
 
@@ -225,13 +225,14 @@ export const experience = [
   {
     role: "Data Scientist Intern",
     org: "TechZone Academy",
-    period: "Jan 2025 — May 2026",
-    description: "",
+    period: "Jan 2025 — Jun 2025",
+    description:
+      "Worked on real-world data science projects — data preprocessing, exploratory analysis, model building, and predictive analytics — in Python, Pandas, NumPy, and Scikit-learn.",
   },
   {
     role: "AI/ML Associate Engineer",
     org: "Yuva Intelli AI Solutions",
-    period: "May 2026 — Present",
+    period: "Jul 2025 — Present",
     description:
       "Building RAG pipelines, LLM agents, and end-to-end ML workflows for production use cases.",
   },

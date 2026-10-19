@@ -21,14 +21,27 @@ EXPERIENCE = [
     {
         "role": "AI/ML Associate Engineer",
         "org": "Yuva Intelli AI Solutions",
-        "period": "May 2026 — Present",
+        "period": "Jul 2025 — Present",
         "description": "Building RAG pipelines, LLM agents, and end-to-end ML workflows for production use cases.",
     },
     {
         "role": "Data Scientist Intern",
         "org": "TechZone Academy",
-        "period": "Jan 2025 — May 2026",
-        "description": "",
+        "period": "Jan 2025 — Jun 2025",
+        "description": "Worked on real-world data science projects — data preprocessing, exploratory analysis, model building, and predictive analytics — in Python, Pandas, NumPy, and Scikit-learn.",
+    },
+]
+
+EDUCATION = [
+    {
+        "school": "Shadan College of Engineering and Technology",
+        "degree": "Bachelor's degree, Artificial Intelligence & Machine Learning",
+        "period": "Jul 2025 — Jun 2028 (in progress)",
+    },
+    {
+        "school": "Jawaharlal Nehru Government Polytechnic College",
+        "degree": "Diploma, Mechanical Engineering",
+        "period": "Aug 2022 — May 2025",
     },
 ]
 
@@ -114,8 +127,8 @@ ABOUT = (
     "classical ML models that hold up under scrutiny. My work spans the full stack of applied "
     "AI: offline model training, explainability, API-first serving, and the orchestration logic "
     "that turns a language model into something that can actually get work done. Currently "
-    "building RAG pipelines and LLM agents in production, and training the next generation of "
-    "AI/ML engineers through TechZone Academy."
+    "building RAG pipelines and LLM agents at Yuva Intelli AI Solutions, while completing a "
+    "Bachelor's degree in Artificial Intelligence & Machine Learning."
 )
 
 
@@ -153,6 +166,14 @@ def build_documents() -> list[dict]:
                 f"Experience: {job['role']} at {job['org']} ({job['period']}). {desc}"
             ),
         })
+
+    docs.append({
+        "id": "education",
+        "text": (
+            "Education and studies: "
+            + " ".join(f"{e['degree']} at {e['school']} ({e['period']})." for e in EDUCATION)
+        ),
+    })
 
     for p in PROJECTS:
         docs.append({
