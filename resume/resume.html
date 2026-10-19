@@ -11,41 +11,39 @@
   :root { --ink:#15171a; --dim:#4a4f57; --faint:#7a808a; --line:#d9dce1; --accent:#2b3a67; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body { font-family: "Inter", "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 9pt; line-height: 1.42; }
-  .page { width: 210mm; height: 297mm; padding: 13mm 15mm 9mm; display: flex; flex-direction: column; }
+  body { font-family: "Inter","Segoe UI",Arial,sans-serif; color: var(--ink); font-size: 8.5pt; line-height: 1.38; }
+  .page { width: 210mm; height: 297mm; padding: 11mm 14mm 8mm; display: flex; flex-direction: column; }
 
-  header { padding-bottom: 4mm; border-bottom: 1.4px solid var(--ink); }
-  h1 { font-size: 27pt; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
-  .role { margin-top: 1.6mm; font-size: 11pt; font-weight: 500; color: var(--accent); letter-spacing: 0.01em; }
-  .contact { margin-top: 3.4mm; display: flex; flex-wrap: wrap; gap: 1.6mm 6mm; font-size: 8.6pt; color: var(--dim); }
-  .contact > * { display: inline-flex; align-items: center; gap: 1.9mm; color: inherit; text-decoration: none; }
-  .contact svg { width: 3.5mm; height: 3.5mm; flex: none; color: var(--accent); }
+  header { padding-bottom: 3.6mm; border-bottom: 1.4px solid var(--ink); }
+  h1 { font-size: 25pt; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+  .role { margin-top: 1.4mm; font-size: 10.5pt; font-weight: 500; color: var(--accent); letter-spacing: 0.01em; }
+  .contact { margin-top: 2.8mm; display: flex; flex-wrap: wrap; gap: 1.2mm 5.5mm; font-size: 8.3pt; color: var(--dim); }
+  .contact > * { display: inline-flex; align-items: center; gap: 1.8mm; color: inherit; text-decoration: none; }
+  .contact svg { width: 3.3mm; height: 3.3mm; flex: none; color: var(--accent); }
   .contact .stroke { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
   .contact .fill { fill: currentColor; }
-  .contact .break { flex-basis: 100%; height: 0; margin: -0.8mm 0; }
+  .contact .break { flex-basis: 100%; height: 0; margin: -0.7mm 0; }
 
-  section { margin-top: 4.2mm; }
-  h2 { font-size: 7.8pt; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
-       padding-bottom: 1.4mm; border-bottom: 1px solid var(--line); margin-bottom: 2.6mm; }
-
+  section { margin-top: 3.8mm; }
+  h2 { font-size: 7.6pt; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+       padding-bottom: 1.1mm; border-bottom: 1px solid var(--line); margin-bottom: 2.2mm; }
   .summary { color: var(--dim); }
 
-  .item { margin-bottom: 2.7mm; }
+  .item { margin-bottom: 2.3mm; }
   .item:last-child { margin-bottom: 0; }
   .row { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; }
-  .title { font-weight: 600; font-size: 10pt; }
+  .title { font-weight: 600; font-size: 9.4pt; }
   .org { color: var(--dim); font-weight: 500; }
-  .date { font-size: 8.6pt; color: var(--faint); white-space: nowrap; font-weight: 500; }
-  .tech { font-size: 8.4pt; color: var(--faint); margin-top: 0.4mm; }
-  ul { margin-top: 1mm; padding-left: 4.2mm; }
-  li { color: var(--dim); margin-bottom: 0.6mm; padding-left: 0.6mm; }
+  .date { font-size: 8pt; color: var(--faint); white-space: nowrap; font-weight: 500; }
+  .sub { color: var(--dim); }
+  .tech { font-size: 7.9pt; color: var(--faint); font-weight: 500; }
+  ul { margin-top: 0.9mm; padding-left: 4mm; }
+  li { color: var(--dim); margin-bottom: 0.5mm; padding-left: 0.5mm; }
   li::marker { color: var(--accent); }
 
-  .skills { display: grid; grid-template-columns: 34mm 1fr; row-gap: 1.7mm; column-gap: 3mm; }
-  .skills dt { font-weight: 600; font-size: 9pt; }
+  .skills { display: grid; grid-template-columns: 33mm 1fr; row-gap: 1.2mm; column-gap: 3mm; }
+  .skills dt { font-weight: 600; font-size: 8.6pt; }
   .skills dd { color: var(--dim); }
-
-  footer { margin-top: auto; padding-top: 3mm; font-size: 7.6pt; color: var(--faint); display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
 </style>
 </head>
 <body>
@@ -63,70 +61,49 @@
     </p>
   </header>
 
-  <section>
-    <h2>Profile</h2>
-    <p class="summary">AI/ML engineer who builds the layer between large language models and real systems: retrieval pipelines that ground answers in source data, agents that plan and act across tools, and classical ML models that hold up under scrutiny. Experience across the applied-AI stack, from model training and explainability to API-first serving and agent orchestration. Currently building RAG pipelines and LLM agents in production.</p>
-  </section>
-
-  <section>
-    <h2>Experience</h2>
+  <section><h2>Profile</h2><p class="summary">AI/ML engineer building RAG pipelines, LLM agents and production ML services with Python, FastAPI and LangChain. Working full-time at Yuva Intelli AI Solutions while completing a Bachelor's in AI &amp; ML (2025–2028).</p></section>
+  <section><h2>Education</h2>
     <div class="item">
-      <div class="row"><div><span class="title">AI/ML Associate Engineer</span> <span class="org">· Yuva Intelli AI Solutions</span></div><span class="date">May 2026 – Present</span></div>
-      <ul>
-        <li>Build RAG pipelines and LLM agents for production use cases.</li>
-        <li>Develop end-to-end ML workflows, from model training and explainability through API-first serving.</li>
-        <li>Orchestrate tool-using agents with LangGraph and LangChain.</li>
-      </ul>
+      <div class="row"><div><span class="title">Shadan College of Engineering and Technology</span> <span class="org">· Bachelor's degree, AI &amp; Machine Learning</span></div><span class="date">Jul 2025 – Jun 2028 (expected)</span></div>
     </div>
     <div class="item">
-      <div class="row"><div><span class="title">Data Scientist Intern</span> <span class="org">· TechZone Academy</span></div><span class="date">Jan 2025 – May 2026</span></div>
-      <ul>
-        <li>Applied machine learning and data science across sequential, classical and vision models.</li>
-        <li>Helped train the next generation of AI/ML engineers.</li>
-      </ul>
-    </div>
-  </section>
-
-  <section>
-    <h2>Projects</h2>
+      <div class="row"><div><span class="title">Jawaharlal Nehru Government Polytechnic College</span> <span class="org">· Diploma, Mechanical Engineering</span></div><span class="date">Aug 2022 – May 2025</span></div>
+    </div></section>
+  <section><h2>Experience</h2>
     <div class="item">
-      <div class="row"><span class="title">Session-Based Recommender System</span></div>
-      <p class="tech">TensorFlow · FastAPI · Streamlit · React</p>
-      <ul>
-        <li>Trained a GRU4Rec sequential model on 20M real e-commerce click events to predict a visitor’s next item from their last few clicks, with no login required.</li>
-        <li>Served predictions through a FastAPI backend, with a React storefront over ~140K real products and a Streamlit interface for live exploration.</li>
-        <li>Deployed end to end across three services: Vercel (frontend), Render (API and model) and Aiven (product database).</li>
-      </ul>
+      <div class="row"><div><span class="title">AI/ML Associate Engineer</span> <span class="org">· Yuva Intelli AI Solutions</span></div><span class="date">Jul 2025 – Present</span></div>
+      <ul><li>Build AI assistants and RAG systems with Python, FastAPI, LangChain, Ollama and vector databases.</li><li>Develop LLM agents and NLP solutions, plus face-recognition and speech-recognition features.</li><li>Own ML workflows end to end, from training and explainability to API-first serving.</li></ul>
     </div>
     <div class="item">
-      <div class="row"><span class="title">Agentic Conference Registration Bot</span><span class="date">Team project</span></div>
-      <p class="tech">Serper API · Playwright · Headless Browsers</p>
-      <ul>
-        <li>Built, as part of a team, an agent that searches for relevant conferences and completes registration autonomously.</li>
-        <li>Drove headless browsers through real-world signup flows.</li>
-      </ul>
+      <div class="row"><div><span class="title">Data Scientist Intern</span> <span class="org">· TechZone Academy</span></div><span class="date">Jan 2025 – Jun 2025</span></div>
+      <ul><li>Delivered data preprocessing, exploratory analysis, model building and predictive analytics on real-world projects.</li><li>Worked in Python, Pandas, NumPy and Scikit-learn alongside mentors and teams on ML, NLP and automation tasks.</li></ul>
+    </div></section>
+  <section><h2>Projects</h2>
+    <div class="item">
+      <div class="row"><div><span class="title">Session-Based Recommender System</span> <span class="tech">· TensorFlow · FastAPI · Streamlit · React</span></div></div>
+      <ul><li>Trained a GRU4Rec model on 20M real e-commerce click events to predict a visitor's next item from their last few clicks, with no login.</li><li>Served it via FastAPI behind a React storefront of ~140K products, deployed live across Vercel, Render and Aiven.</li></ul>
     </div>
     <div class="item">
-      <div class="row"><span class="title">Portfolio with a Live RAG Assistant</span><span class="date">github.com/ahmedali-aihub/Portfolio</span></div>
-      <p class="tech">React · FastAPI · scikit-learn · OpenRouter</p>
-      <ul>
-        <li>Built a retrieval-augmented chat assistant: TF-IDF retrieval over a curated knowledge base, streamed to the browser over Server-Sent Events.</li>
-        <li>Added automatic fallback across an ordered chain of free-tier LLMs so answers keep flowing when a model is unavailable.</li>
-      </ul>
+      <div class="row"><div><span class="title">Calendar &amp; Email Agents</span> <span class="tech">· LangGraph · LangChain · OpenRouter · Google Calendar API</span></div></div>
+      <ul><li>LangGraph scheduling agent that reads intent, checks availability, and books, moves or cancels Google Calendar events.</li><li>LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models by task complexity.</li></ul>
     </div>
-  </section>
-
-  <section>
-    <h2>Technical Skills</h2>
-    <dl class="skills">
-      <dt>Agentic AI &amp; LLMs</dt><dd>LangChain, LangGraph, CrewAI, AutoGen, MCP Servers, Prompt Engineering, Hugging Face, Anthropic, OpenRouter</dd>
-      <dt>RAG &amp; Search</dt><dd>Retrieval-Augmented Generation, Vector Databases, FAISS, TF-IDF</dd>
-      <dt>ML &amp; Modeling</dt><dd>Python, NumPy, Pandas, TensorFlow, Keras, PyTorch, Scikit-learn, NLP, SHAP, Jupyter</dd>
-      <dt>LLM Engineering</dt><dd>Transformers, Ollama, vLLM, LangSmith, LLM Evals &amp; Guardrails, LoRA, RLHF</dd>
-      <dt>Backend &amp; Tools</dt><dd>FastAPI, REST APIs, Streamlit, Docker, MySQL, Playwright, Selenium, Git, GitHub Actions, Linux</dd>
-    </dl>
-  </section>
-
+    <div class="item">
+      <div class="row"><div><span class="title">Text-to-SQL RAG Pipeline</span> <span class="tech">· FastAPI · SQLAlchemy · MySQL · Anthropic API</span></div></div>
+      <ul><li>Turns plain-English questions into MySQL queries using retrieval-augmented context and the Anthropic API.</li></ul>
+    </div>
+    <div class="item">
+      <div class="row"><div><span class="title">Agentic Conference Registration Bot</span> <span class="tech">· Serper API · Playwright · Headless Browsers</span></div></div>
+      <ul><li>Team-built agent that finds relevant conferences and completes registration autonomously via headless browsers.</li></ul>
+    </div>
+    <div class="item">
+      <div class="row"><div><span class="title">Portfolio with a Live RAG Assistant</span> <span class="tech">· React · FastAPI · scikit-learn · OpenRouter</span></div><span class="date">github.com/ahmedali-aihub/Portfolio</span></div>
+      <ul><li>RAG chat assistant with TF-IDF retrieval over a curated knowledge base, streamed over Server-Sent Events.</li><li>Automatic fallback across a chain of free-tier LLMs keeps answers flowing when a model is unavailable.</li></ul>
+    </div>
+    <div class="item">
+      <div class="row"><div><span class="title">Applied ML &amp; Computer Vision</span> <span class="tech">· Scikit-learn · SHAP · TensorFlow/Keras · Streamlit</span></div></div>
+      <ul><li>Heart-disease risk classifier (decision tree) with SHAP explanations for every prediction.</li><li>Smoking-detection image classifier in TensorFlow/Keras, deployed as a Streamlit app.</li></ul>
+    </div></section>
+  <section><h2>Technical Skills</h2><dl class="skills"><dt>Agentic AI &amp; LLMs</dt><dd>AI Agents, LangChain, LangGraph, CrewAI, AutoGen, MCP Servers, Prompt Engineering, Hugging Face, Anthropic, OpenRouter</dd><dt>RAG &amp; Search</dt><dd>RAG, Vector DBs, FAISS, TF-IDF</dd><dt>ML &amp; Modeling</dt><dd>Python, NumPy, Pandas, TensorFlow, Keras, PyTorch, Scikit-learn, NLP, SHAP, Statistics, Data Science, Jupyter</dd><dt>LLM Engineering</dt><dd>Transformers, Ollama, vLLM, LangSmith, LLM Evals, Guardrails, LoRA, RLHF</dd><dt>Backend &amp; Tools</dt><dd>FastAPI, REST APIs, Streamlit, Docker, MySQL, SQLAlchemy, Playwright, Selenium, Git, GitHub Actions, Linux</dd></dl></section>
 </div>
 </body>
 </html>
