@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, ArrowUpRight } from "lucide-react";
+import { MapPin, ArrowUpRight, FileText, Download } from "lucide-react";
 import { profile } from "../data/content";
 import { GithubIcon, LinkedinIcon } from "./icons";
 import Reveal from "./Reveal";
@@ -85,6 +85,25 @@ export default function Contact() {
             className="inline-flex items-center gap-3 rounded-full bg-[var(--color-silver-bright)] px-9 py-4 font-heading text-sm font-semibold text-[var(--color-void)] mt-6"
           >
             Call {profile.phone}
+          </MagneticButton>
+        </Reveal>
+
+        <Reveal delay={0.18} className="mt-4 flex flex-wrap items-center justify-center gap-3">
+          <MagneticButton
+            as="a"
+            {...{ href: profile.resume, target: "_blank", rel: "noopener noreferrer" }}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line)] px-6 py-3 font-heading text-sm font-semibold text-[var(--color-ink)] transition-colors hover:border-[var(--color-silver-dim)]"
+          >
+            <FileText size={15} strokeWidth={1.8} />
+            View Resume
+          </MagneticButton>
+          <MagneticButton
+            as="a"
+            {...{ href: profile.resume, download: "Ahmed-Ali-Resume.pdf" }}
+            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line)] px-6 py-3 font-heading text-sm font-semibold text-[var(--color-ink-dim)] transition-colors hover:border-[var(--color-silver-dim)] hover:text-[var(--color-ink)]"
+          >
+            <Download size={15} strokeWidth={1.8} />
+            Download PDF
           </MagneticButton>
         </Reveal>
 
