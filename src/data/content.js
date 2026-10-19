@@ -8,6 +8,7 @@ export const profile = {
   phone: "+91 90001 89973",
   github: "https://github.com/ahmedali-aihub",
   linkedin: "https://www.linkedin.com/in/ahmed-ali-aiml2006/",
+  resume: "/Ahmed-Ali-Resume.pdf",
 };
 
 export const about = {
