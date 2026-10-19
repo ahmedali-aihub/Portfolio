@@ -5,183 +5,125 @@
 <title>Ahmed Ali — AI/ML Engineer — Resume</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   @page { size: A4; margin: 0; }
-  :root {
-    --navy:#0e1530; --navy2:#18224a; --ink:#14171c; --dim:#464c56; --faint:#7b818c;
-    --line:#dfe2e8; --tint:#f3f5f9; --accent:#3b54c4; --accent-soft:#e6eafb;
-  }
+  :root { --ink:#15171a; --dim:#4a4f57; --faint:#7a808a; --line:#d9dce1; --accent:#2b3a67; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body { font-family: "Inter","Segoe UI",Arial,sans-serif; color: var(--ink); font-size: 8.7pt; line-height: 1.4; }
-  a { color: inherit; text-decoration: none; }
-  .page { width: 210mm; height: 297mm; display: flex; flex-direction: column; overflow: hidden; }
+  body { font-family: "Inter", "Segoe UI", Arial, sans-serif; color: var(--ink); font-size: 9pt; line-height: 1.42; }
+  .page { width: 210mm; height: 297mm; padding: 13mm 15mm 9mm; display: flex; flex-direction: column; }
 
-  /* header */
-  header { background: linear-gradient(115deg, var(--navy) 0%, var(--navy2) 100%); color: #fff;
-           padding: 10mm 14mm 7mm; display: flex; justify-content: space-between; align-items: flex-end; gap: 8mm; }
-  h1 { font-size: 29pt; font-weight: 800; letter-spacing: -0.025em; line-height: 1; }
-  .role { margin-top: 2.6mm; font-size: 10.5pt; font-weight: 500; color: #b9c6ff; letter-spacing: 0.01em; }
-  .tag { margin-top: 1.6mm; font-size: 8.6pt; color: #9aa6d4; }
-  .contact { font-size: 8.4pt; line-height: 1.75; text-align: right; color: #dfe4fb; }
-  .contact b { color: #8fa0e8; font-weight: 600; font-size: 7pt; letter-spacing: 0.14em; text-transform: uppercase; margin-right: 1.5mm; }
+  header { padding-bottom: 4mm; border-bottom: 1.4px solid var(--ink); }
+  h1 { font-size: 27pt; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
+  .role { margin-top: 1.6mm; font-size: 11pt; font-weight: 500; color: var(--accent); letter-spacing: 0.01em; }
+  .contact { margin-top: 3.2mm; display: flex; flex-wrap: wrap; gap: 0.4mm 5mm; font-size: 8.6pt; color: var(--dim); }
+  .contact a { color: inherit; text-decoration: none; }
+  .contact span + span::before, .contact a + a::before { content: none; }
 
-  /* metrics */
-  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); border-bottom: 1px solid var(--line); background: var(--tint); }
-  .metric { padding: 2.8mm 6mm 2.6mm 5mm; border-left: 1px solid var(--line); }
-  .metric:first-child { border-left: 0; padding-left: 14mm; }
-  .metric strong { display: block; font-size: 15pt; font-weight: 800; letter-spacing: -0.02em; color: var(--accent); line-height: 1.1; }
-  .metric span { font-size: 7.6pt; color: var(--dim); line-height: 1.3; display: block; margin-top: 0.4mm; }
-
-  /* body */
-  .body { flex: 1; display: grid; grid-template-columns: 1fr 64mm; }
-  .main { padding: 5.6mm 7mm 6mm 14mm; }
-  .side { padding: 5.6mm 11mm 6mm 7mm; border-left: 1px solid var(--line); }
-
-  h2 { font-size: 7.6pt; font-weight: 800; letter-spacing: 0.22em; text-transform: uppercase; color: var(--accent);
-       display: flex; align-items: center; gap: 2.4mm; margin-bottom: 2.2mm; }
-  h2::after { content: ""; flex: 1; height: 1px; background: var(--line); }
-  .block { margin-bottom: 4.2mm; }
-  .block:last-child { margin-bottom: 0; }
+  section { margin-top: 4.2mm; }
+  h2 { font-size: 7.8pt; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
+       padding-bottom: 1.4mm; border-bottom: 1px solid var(--line); margin-bottom: 2.6mm; }
 
   .summary { color: var(--dim); }
 
   .item { margin-bottom: 2.7mm; }
   .item:last-child { margin-bottom: 0; }
-  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 3mm; }
-  .title { font-weight: 700; font-size: 9.8pt; }
-  .org { color: var(--accent); font-weight: 600; }
-  .date { font-size: 8pt; color: var(--faint); white-space: nowrap; font-weight: 500; }
-  .tech { font-size: 7.9pt; color: var(--faint); margin-top: 0.3mm; font-weight: 500; }
-  ul { margin-top: 1.1mm; padding-left: 3.8mm; }
-  li { color: var(--dim); margin-bottom: 0.8mm; padding-left: 0.4mm; }
+  .row { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; }
+  .title { font-weight: 600; font-size: 10pt; }
+  .org { color: var(--dim); font-weight: 500; }
+  .date { font-size: 8.6pt; color: var(--faint); white-space: nowrap; font-weight: 500; }
+  .tech { font-size: 8.4pt; color: var(--faint); margin-top: 0.4mm; }
+  ul { margin-top: 1mm; padding-left: 4.2mm; }
+  li { color: var(--dim); margin-bottom: 0.6mm; padding-left: 0.6mm; }
   li::marker { color: var(--accent); }
-  li b { color: var(--ink); font-weight: 600; }
 
-  /* sidebar */
-  .skillgroup { margin-bottom: 2.6mm; }
-  .skillgroup:last-child { margin-bottom: 0; }
-  .skillgroup h3 { font-size: 7.8pt; font-weight: 700; color: var(--ink); margin-bottom: 1.2mm; }
-  .chips { display: flex; flex-wrap: wrap; gap: 1mm; }
-  .chip { font-size: 7.5pt; font-weight: 500; color: var(--navy2); background: var(--accent-soft); border-radius: 1.4mm; padding: 0.5mm 1.8mm; line-height: 1.5; }
-  .strengths li { margin-bottom: 1.1mm; color: var(--ink); font-weight: 500; }
-  .links p { margin-bottom: 1.2mm; color: var(--dim); font-size: 8.1pt; word-break: break-all; }
-  .links p b { display: block; color: var(--faint); font-size: 6.8pt; letter-spacing: 0.14em; text-transform: uppercase; font-weight: 600; }
+  .skills { display: grid; grid-template-columns: 34mm 1fr; row-gap: 1.7mm; column-gap: 3mm; }
+  .skills dt { font-weight: 600; font-size: 9pt; }
+  .skills dd { color: var(--dim); }
+
+  footer { margin-top: auto; padding-top: 3mm; font-size: 7.6pt; color: var(--faint); display: flex; justify-content: space-between; border-top: 1px solid var(--line); }
 </style>
 </head>
 <body>
 <div class="page">
-
   <header>
-    <div>
-      <h1>Ahmed Ali</h1>
-      <p class="role">AI/ML Engineer · GenAI &amp; Agentic Systems</p>
-      <p class="tag">Building systems where language models retrieve, reason and act.</p>
-    </div>
-    <div class="contact">
-      <div><b>Email</b><a href="mailto:theahmedalii82@gmail.com">theahmedalii82@gmail.com</a></div>
-      <div><b>Phone</b>+91 90001 89973</div>
-      <div><b>Location</b>Hyderabad, India</div>
-      <div><b>LinkedIn</b><a href="https://www.linkedin.com/in/ahmed-ali-aiml2006/">in/ahmed-ali-aiml2006</a></div>
-      <div><b>GitHub</b><a href="https://github.com/ahmedali-aihub">ahmedali-aihub</a></div>
-    </div>
+    <h1>Ahmed Ali</h1>
+    <p class="role">AI/ML Engineer &nbsp;·&nbsp; GenAI &amp; Agentic Systems</p>
+    <p class="contact">
+      <a href="mailto:theahmedalii82@gmail.com">theahmedalii82@gmail.com</a>
+      <span>+91 90001 89973</span>
+      <span>Hyderabad, India</span>
+      <span style="flex-basis:100%;height:0"></span>
+      <a href="https://www.linkedin.com/in/ahmed-ali-aiml2006/">linkedin.com/in/ahmed-ali-aiml2006</a>
+      <a href="https://github.com/ahmedali-aihub">github.com/ahmedali-aihub</a>
+    </p>
   </header>
 
-  <div class="metrics">
-    <div class="metric"><strong>20M</strong><span>real click events modelled in a session recommender</span></div>
-    <div class="metric"><strong>140K</strong><span>products served live behind the recommender</span></div>
-    <div class="metric"><strong>3</strong><span>cloud services wired into one live deployment</span></div>
-    <div class="metric"><strong>4</strong><span>agent frameworks: LangChain, LangGraph, CrewAI, AutoGen</span></div>
-  </div>
+  <section>
+    <h2>Profile</h2>
+    <p class="summary">AI/ML engineer who builds the layer between large language models and real systems: retrieval pipelines that ground answers in source data, agents that plan and act across tools, and classical ML models that hold up under scrutiny. Experience across the applied-AI stack, from model training and explainability to API-first serving and agent orchestration. Currently building RAG pipelines and LLM agents in production.</p>
+  </section>
 
-  <div class="body">
-    <div class="main">
-
-      <div class="block">
-        <h2>Profile</h2>
-        <p class="summary">AI/ML engineer who builds the layer between large language models and real systems: retrieval pipelines that ground answers in source data, agents that plan and act across tools, and classical ML models that hold up under scrutiny. Works across the applied-AI stack, from model training and explainability to API-first serving and agent orchestration, and is currently building RAG pipelines and LLM agents in production.</p>
-      </div>
-
-      <div class="block">
-        <h2>Experience</h2>
-        <div class="item">
-          <div class="row"><div><span class="title">AI/ML Associate Engineer</span></div><span class="date">May 2026 – Present</span></div>
-          <div class="org">Yuva Intelli AI Solutions · Hyderabad, India</div>
-          <ul>
-            <li>Design and build <b>RAG pipelines</b> that ground LLM answers in retrieved, structured and vectorised data for production use cases.</li>
-            <li>Build <b>LLM agents</b> with LangGraph and LangChain that plan, call tools and complete multi-step tasks.</li>
-            <li>Own <b>end-to-end ML workflows</b>: training, explainability and API-first serving with FastAPI.</li>
-          </ul>
-        </div>
-        <div class="item">
-          <div class="row"><div><span class="title">Data Scientist Intern</span></div><span class="date">Jan 2025 – May 2026</span></div>
-          <div class="org">TechZone Academy</div>
-          <ul>
-            <li>Applied machine learning and data science across <b>sequential, classical and vision</b> models.</li>
-            <li>Helped train the next generation of AI/ML engineers.</li>
-          </ul>
-        </div>
-      </div>
-
-      <div class="block">
-        <h2>Projects</h2>
-        <div class="item">
-          <div class="row"><span class="title">Session-Based Recommender System</span></div>
-          <p class="tech">TensorFlow · FastAPI · Streamlit · React</p>
-          <ul>
-            <li>Trained a <b>GRU4Rec</b> sequential model on <b>20M real e-commerce click events</b> to predict a visitor’s next item from their last few clicks, with no login required.</li>
-            <li>Served predictions through a <b>FastAPI</b> backend behind a React storefront of ~140K real products, plus a Streamlit app for live exploration.</li>
-            <li>Deployed live across three services: Vercel (frontend), Render (API and model) and Aiven (database).</li>
-          </ul>
-        </div>
-        <div class="item">
-          <div class="row"><span class="title">Agentic Conference Registration Bot</span><span class="date">Team project</span></div>
-          <p class="tech">Serper API · Playwright · Headless Browsers</p>
-          <ul>
-            <li>Built, with a team, an <b>autonomous agent</b> that searches for relevant conferences and completes registration without human input.</li>
-            <li>Drove headless browsers through real-world signup flows.</li>
-          </ul>
-        </div>
-        <div class="item">
-          <div class="row"><span class="title">Portfolio with a Live RAG Assistant</span></div>
-          <p class="tech">React · FastAPI · scikit-learn · OpenRouter · github.com/ahmedali-aihub/Portfolio</p>
-          <ul>
-            <li>Built a <b>retrieval-augmented</b> chat assistant: TF-IDF retrieval over a curated knowledge base, streamed to the browser over Server-Sent Events.</li>
-            <li>Added automatic fallback across an ordered chain of free-tier LLMs so answers keep flowing when a model is unavailable.</li>
-          </ul>
-        </div>
-      </div>
-
+  <section>
+    <h2>Experience</h2>
+    <div class="item">
+      <div class="row"><div><span class="title">AI/ML Associate Engineer</span> <span class="org">· Yuva Intelli AI Solutions</span></div><span class="date">May 2026 – Present</span></div>
+      <ul>
+        <li>Build RAG pipelines and LLM agents for production use cases.</li>
+        <li>Develop end-to-end ML workflows, from model training and explainability through API-first serving.</li>
+        <li>Orchestrate tool-using agents with LangGraph and LangChain.</li>
+      </ul>
     </div>
+    <div class="item">
+      <div class="row"><div><span class="title">Data Scientist Intern</span> <span class="org">· TechZone Academy</span></div><span class="date">Jan 2025 – May 2026</span></div>
+      <ul>
+        <li>Applied machine learning and data science across sequential, classical and vision models.</li>
+        <li>Helped train the next generation of AI/ML engineers.</li>
+      </ul>
+    </div>
+  </section>
 
-    <aside class="side">
-      <div class="block">
-        <h2>Skills</h2>
-        <div class="skillgroup"><h3>Agentic AI &amp; LLMs</h3><div class="chips">
-          <span class="chip">LangChain</span><span class="chip">LangGraph</span><span class="chip">CrewAI</span><span class="chip">AutoGen</span><span class="chip">MCP Servers</span><span class="chip">Prompt Engineering</span><span class="chip">Hugging Face</span><span class="chip">Anthropic</span><span class="chip">OpenRouter</span></div></div>
-        <div class="skillgroup"><h3>RAG &amp; Search</h3><div class="chips">
-          <span class="chip">RAG</span><span class="chip">Vector Databases</span><span class="chip">FAISS</span><span class="chip">TF-IDF</span></div></div>
-        <div class="skillgroup"><h3>ML &amp; Modeling</h3><div class="chips">
-          <span class="chip">Python</span><span class="chip">NumPy</span><span class="chip">Pandas</span><span class="chip">TensorFlow</span><span class="chip">Keras</span><span class="chip">PyTorch</span><span class="chip">Scikit-learn</span><span class="chip">NLP</span><span class="chip">SHAP</span><span class="chip">Jupyter</span></div></div>
-        <div class="skillgroup"><h3>LLM Engineering</h3><div class="chips">
-          <span class="chip">Transformers</span><span class="chip">Ollama</span><span class="chip">vLLM</span><span class="chip">LangSmith</span><span class="chip">LLM Evals</span><span class="chip">Guardrails</span><span class="chip">LoRA</span><span class="chip">RLHF</span></div></div>
-        <div class="skillgroup"><h3>Backend &amp; Tools</h3><div class="chips">
-          <span class="chip">FastAPI</span><span class="chip">REST APIs</span><span class="chip">Streamlit</span><span class="chip">Docker</span><span class="chip">MySQL</span><span class="chip">Playwright</span><span class="chip">Selenium</span><span class="chip">Git</span><span class="chip">GitHub Actions</span><span class="chip">Linux</span></div></div>
-      </div>
+  <section>
+    <h2>Projects</h2>
+    <div class="item">
+      <div class="row"><span class="title">Session-Based Recommender System</span></div>
+      <p class="tech">TensorFlow · FastAPI · Streamlit · React</p>
+      <ul>
+        <li>Trained a GRU4Rec sequential model on 20M real e-commerce click events to predict a visitor’s next item from their last few clicks, with no login required.</li>
+        <li>Served predictions through a FastAPI backend, with a React storefront over ~140K real products and a Streamlit interface for live exploration.</li>
+        <li>Deployed end to end across three services: Vercel (frontend), Render (API and model) and Aiven (product database).</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="row"><span class="title">Agentic Conference Registration Bot</span><span class="date">Team project</span></div>
+      <p class="tech">Serper API · Playwright · Headless Browsers</p>
+      <ul>
+        <li>Built, as part of a team, an agent that searches for relevant conferences and completes registration autonomously.</li>
+        <li>Drove headless browsers through real-world signup flows.</li>
+      </ul>
+    </div>
+    <div class="item">
+      <div class="row"><span class="title">Portfolio with a Live RAG Assistant</span><span class="date">github.com/ahmedali-aihub/Portfolio</span></div>
+      <p class="tech">React · FastAPI · scikit-learn · OpenRouter</p>
+      <ul>
+        <li>Built a retrieval-augmented chat assistant: TF-IDF retrieval over a curated knowledge base, streamed to the browser over Server-Sent Events.</li>
+        <li>Added automatic fallback across an ordered chain of free-tier LLMs so answers keep flowing when a model is unavailable.</li>
+      </ul>
+    </div>
+  </section>
 
-      <div class="block">
-        <h2>Focus Areas</h2>
-        <ul class="strengths">
-          <li>Agentic AI systems</li>
-          <li>RAG &amp; retrieval pipelines</li>
-          <li>Applied machine learning</li>
-          <li>Computer vision</li>
-          <li>Production ML infrastructure</li>
-        </ul>
-      </div>
-    </aside>
-  </div>
+  <section>
+    <h2>Technical Skills</h2>
+    <dl class="skills">
+      <dt>Agentic AI &amp; LLMs</dt><dd>LangChain, LangGraph, CrewAI, AutoGen, MCP Servers, Prompt Engineering, Hugging Face, Anthropic, OpenRouter</dd>
+      <dt>RAG &amp; Search</dt><dd>Retrieval-Augmented Generation, Vector Databases, FAISS, TF-IDF</dd>
+      <dt>ML &amp; Modeling</dt><dd>Python, NumPy, Pandas, TensorFlow, Keras, PyTorch, Scikit-learn, NLP, SHAP, Jupyter</dd>
+      <dt>LLM Engineering</dt><dd>Transformers, Ollama, vLLM, LangSmith, LLM Evals &amp; Guardrails, LoRA, RLHF</dd>
+      <dt>Backend &amp; Tools</dt><dd>FastAPI, REST APIs, Streamlit, Docker, MySQL, Playwright, Selenium, Git, GitHub Actions, Linux</dd>
+    </dl>
+  </section>
+
 </div>
 </body>
 </html>
