@@ -73,28 +73,16 @@
     </div>
   <h2>Projects</h2>
     <div class="entry">
-      <div class="row"><span><b>Session-Based Recommender System</b> <span class="sep">|</span> <i class="stack">TensorFlow, FastAPI, Streamlit, React</i></span><span></span></div>
+      <div class="row"><span><b>Agentic RAG Support Assistant</b> <span class="sep">|</span> <i class="stack">LangGraph, FastAPI, Chroma, React, TypeScript</i></span><span><a href="https://github.com/ahmedali-aihub/Agentic-RAG-Support-Assistant-with-Confidence-Based-Escalation">GitHub</a></span></div>
+      <ul><li>Built a LangGraph support agent that judges whether retrieved evidence answers a question, then replies with a citation, rewrites the query once, or escalates to a human with a triage summary.</li><li>Two-stage retrieval (Chroma, then cross-encoder reranking of 20 candidates to the top 5); on an 11-question eval it cut hallucinated out-of-scope answers from 2/5 to 0/5 while still answering all 6 in-scope questions.</li><li>Added a human-in-the-loop ticket queue whose resolved answers are embedded back into the knowledge base; shipped with 81 automated tests, CI and Docker.</li></ul>
+    </div>
+    <div class="entry">
+      <div class="row"><span><b>Session-Based Recommender System</b> <span class="sep">|</span> <i class="stack">TensorFlow, FastAPI, Streamlit, React</i></span><span><a href="https://github.com/ahmedali-aihub/Product-Recommendation-system-Using-GRU">GitHub</a></span></div>
       <ul><li>Trained a GRU4Rec model on 20M real e-commerce click events to predict each visitor's next item.</li><li>Served via FastAPI behind a React storefront of ~140K products; deployed on Vercel, Render and Aiven.</li></ul>
-    </div>
-    <div class="entry">
-      <div class="row"><span><b>Calendar &amp; Email Agents</b> <span class="sep">|</span> <i class="stack">LangGraph, LangChain, OpenRouter, Google Calendar API</i></span><span></span></div>
-      <ul><li>LangGraph scheduling agent that checks availability and books, moves or cancels Google Calendar events.</li><li>LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models.</li></ul>
-    </div>
-    <div class="entry">
-      <div class="row"><span><b>Text-to-SQL RAG Pipeline</b> <span class="sep">|</span> <i class="stack">FastAPI, SQLAlchemy, MySQL, Anthropic API</i></span><span></span></div>
-      <ul><li>Turns plain-English questions into MySQL queries using retrieval-augmented context and the Anthropic API.</li></ul>
     </div>
     <div class="entry">
       <div class="row"><span><b>Agentic Conference Registration Bot</b> <span class="sep">|</span> <i class="stack">Serper API, Playwright, Headless Browsers</i></span><span></span></div>
       <ul><li>Team-built agent that finds relevant conferences and completes registration autonomously via headless browsers.</li></ul>
-    </div>
-    <div class="entry">
-      <div class="row"><span><b>Portfolio with a Live RAG Assistant</b> <span class="sep">|</span> <i class="stack">React, FastAPI, scikit-learn, OpenRouter</i></span><span><a href="https://github.com/ahmedali-aihub/Portfolio">GitHub</a></span></div>
-      <ul><li>RAG chat assistant with TF-IDF retrieval over a curated knowledge base, streamed over Server-Sent Events.</li><li>Automatic fallback across a chain of free-tier LLMs keeps answers flowing when a model is unavailable.</li></ul>
-    </div>
-    <div class="entry">
-      <div class="row"><span><b>Applied ML &amp; Computer Vision</b> <span class="sep">|</span> <i class="stack">Scikit-learn, SHAP, TensorFlow/Keras, Streamlit</i></span><span></span></div>
-      <ul><li>Heart-disease risk classifier (decision tree) with SHAP explanations for every prediction.</li><li>Smoking-detection image classifier in TensorFlow/Keras, deployed as a Streamlit app.</li></ul>
     </div>
   <h2>Technical Skills</h2>
   <div class="skills"><p><b>Agentic AI &amp; LLMs:</b> AI Agents, LangChain, LangGraph, CrewAI, AutoGen, MCP Servers, Prompt Engineering, Hugging Face, Anthropic, OpenRouter</p><p><b>RAG &amp; Search:</b> RAG, Vector DBs, FAISS, TF-IDF</p><p><b>ML &amp; Modeling:</b> Python, NumPy, Pandas, TensorFlow, Keras, PyTorch, Scikit-learn, NLP, SHAP, Statistics, Data Science, Jupyter</p><p><b>LLM Engineering:</b> Transformers, Ollama, vLLM, LangSmith, LLM Evals, Guardrails, LoRA, RLHF</p><p><b>Backend &amp; Tools:</b> FastAPI, REST APIs, Streamlit, Docker, MySQL, SQLAlchemy, Playwright, Selenium, Git, GitHub Actions, Linux</p></div>

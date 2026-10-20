@@ -57,29 +57,27 @@ export const resume = {
 
   projects: [
     {
+      name: "Agentic RAG Support Assistant",
+      kind: "Agentic AI",
+      stack: ["LangGraph", "FastAPI", "Chroma", "React", "TypeScript"],
+      link: {
+        label: "GitHub",
+        href: "https://github.com/ahmedali-aihub/Agentic-RAG-Support-Assistant-with-Confidence-Based-Escalation",
+      },
+      bullets: [
+        "Built a LangGraph support agent that judges whether retrieved evidence answers a question, then replies with a citation, rewrites the query once, or escalates to a human with a triage summary.",
+        "Two-stage retrieval (Chroma, then cross-encoder reranking of 20 candidates to the top 5); on an 11-question eval it cut hallucinated out-of-scope answers from 2/5 to 0/5 while still answering all 6 in-scope questions.",
+        "Added a human-in-the-loop ticket queue whose resolved answers are embedded back into the knowledge base; shipped with 81 automated tests, CI and Docker.",
+      ],
+    },
+    {
       name: "Session-Based Recommender System",
       kind: "Recommender System",
       stack: ["TensorFlow", "FastAPI", "Streamlit", "React"],
+      link: { label: "GitHub", href: "https://github.com/ahmedali-aihub/Product-Recommendation-system-Using-GRU" },
       bullets: [
         "Trained a GRU4Rec model on 20M real e-commerce click events to predict each visitor's next item.",
         "Served via FastAPI behind a React storefront of ~140K products; deployed on Vercel, Render and Aiven.",
-      ],
-    },
-    {
-      name: "Calendar & Email Agents",
-      kind: "Agentic AI",
-      stack: ["LangGraph", "LangChain", "OpenRouter", "Google Calendar API"],
-      bullets: [
-        "LangGraph scheduling agent that checks availability and books, moves or cancels Google Calendar events.",
-        "LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models.",
-      ],
-    },
-    {
-      name: "Text-to-SQL RAG Pipeline",
-      kind: "RAG / Data",
-      stack: ["FastAPI", "SQLAlchemy", "MySQL", "Anthropic API"],
-      bullets: [
-        "Turns plain-English questions into MySQL queries using retrieval-augmented context and the Anthropic API.",
       ],
     },
     {
@@ -88,25 +86,6 @@ export const resume = {
       stack: ["Serper API", "Playwright", "Headless Browsers"],
       bullets: [
         "Team-built agent that finds relevant conferences and completes registration autonomously via headless browsers.",
-      ],
-    },
-    {
-      name: "Portfolio with a Live RAG Assistant",
-      kind: "Full-stack",
-      stack: ["React", "FastAPI", "scikit-learn", "OpenRouter"],
-      link: { label: "github.com/ahmedali-aihub/Portfolio", href: "https://github.com/ahmedali-aihub/Portfolio" },
-      bullets: [
-        "RAG chat assistant with TF-IDF retrieval over a curated knowledge base, streamed over Server-Sent Events.",
-        "Automatic fallback across a chain of free-tier LLMs keeps answers flowing when a model is unavailable.",
-      ],
-    },
-    {
-      name: "Applied ML & Computer Vision",
-      kind: "Classical ML",
-      stack: ["Scikit-learn", "SHAP", "TensorFlow/Keras", "Streamlit"],
-      bullets: [
-        "Heart-disease risk classifier (decision tree) with SHAP explanations for every prediction.",
-        "Smoking-detection image classifier in TensorFlow/Keras, deployed as a Streamlit app.",
       ],
     },
   ],
