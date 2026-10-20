@@ -23,12 +23,6 @@ export const resume = {
       period: "Jul 2025 – Jun 2028",
       status: "In progress",
     },
-    {
-      school: "Jawaharlal Nehru Government Polytechnic College",
-      degree: "Diploma, Mechanical Engineering",
-      period: "Aug 2022 – May 2025",
-      status: "Completed",
-    },
   ],
 
   experience: [
