@@ -91,7 +91,7 @@ export default function Contact() {
         <Reveal delay={0.18} className="mt-4 flex flex-wrap items-center justify-center gap-3">
           <MagneticButton
             as="a"
-            {...{ href: profile.resumePage }}
+            {...{ href: profile.resume, target: "_blank", rel: "noopener noreferrer" }}
             className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line)] px-6 py-3 font-heading text-sm font-semibold text-[var(--color-ink)] transition-colors hover:border-[var(--color-silver-dim)]"
           >
             <FileText size={15} strokeWidth={1.8} />

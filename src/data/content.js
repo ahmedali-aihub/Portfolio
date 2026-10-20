@@ -9,7 +9,6 @@ export const profile = {
   github: "https://github.com/ahmedali-aihub",
   linkedin: "https://www.linkedin.com/in/ahmed-ali-aiml2006/",
   resume: "/Ahmed-Ali-Resume.pdf",
-  resumePage: "/resume.html",
 };
 
 export const about = {
