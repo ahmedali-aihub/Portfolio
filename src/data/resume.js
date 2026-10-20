@@ -75,8 +75,8 @@ export const resume = {
       place: "Hyderabad",
       period: "Jan 2025 – Jun 2025",
       bullets: [
-        "Delivered data preprocessing, exploratory analysis, model building and predictive analytics on real-world projects.",
-        "Worked in Python, Pandas, NumPy and Scikit-learn alongside mentors and teams on ML, NLP and automation tasks.",
+        "Performed data preprocessing, exploratory analysis, model building and predictive analytics.",
+        "Used Python, Pandas, NumPy and Scikit-learn with mentors and teams on ML, NLP and automation work.",
       ],
       tags: ["Python", "Pandas", "NumPy", "Scikit-learn", "NLP", "Data Science"],
     },
@@ -88,8 +88,8 @@ export const resume = {
       kind: "Recommender System",
       stack: ["TensorFlow", "FastAPI", "Streamlit", "React"],
       bullets: [
-        "Trained a GRU4Rec model on 20M real e-commerce click events to predict a visitor's next item from their last few clicks, with no login.",
-        "Served it via FastAPI behind a React storefront of ~140K products, deployed live across Vercel, Render and Aiven.",
+        "Trained a GRU4Rec model on 20M real e-commerce click events to predict each visitor's next item.",
+        "Served via FastAPI behind a React storefront of ~140K products; deployed on Vercel, Render and Aiven.",
       ],
       tags: ["TensorFlow", "FastAPI", "Streamlit", "React", "Python"],
     },
@@ -98,8 +98,8 @@ export const resume = {
       kind: "Agentic AI",
       stack: ["LangGraph", "LangChain", "OpenRouter", "Google Calendar API"],
       bullets: [
-        "LangGraph scheduling agent that reads intent, checks availability, and books, moves or cancels Google Calendar events.",
-        "LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models by task complexity.",
+        "LangGraph scheduling agent that checks availability and books, moves or cancels Google Calendar events.",
+        "LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models.",
       ],
       tags: ["LangGraph", "LangChain", "OpenRouter", "AI Agents", "Python"],
     },

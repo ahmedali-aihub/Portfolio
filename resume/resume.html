@@ -3,107 +3,101 @@
 <head>
 <meta charset="utf-8">
 <title>Ahmed Ali — AI/ML Engineer — Resume</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+  @font-face { font-family: "CMU Serif"; font-weight: 400; font-style: normal; src: url("fonts/cmu-serif-500-roman.woff2") format("woff2"); }
+  @font-face { font-family: "CMU Serif"; font-weight: 400; font-style: italic; src: url("fonts/cmu-serif-500-italic.woff2") format("woff2"); }
+  @font-face { font-family: "CMU Serif"; font-weight: 700; font-style: normal; src: url("fonts/cmu-serif-700-roman.woff2") format("woff2"); }
+  @font-face { font-family: "CMU Serif"; font-weight: 700; font-style: italic; src: url("fonts/cmu-serif-700-italic.woff2") format("woff2"); }
+
   @page { size: A4; margin: 0; }
-  :root { --ink:#15171a; --dim:#4a4f57; --faint:#7a808a; --line:#d9dce1; --accent:#2b3a67; }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   html { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
-  body { font-family: "Inter","Segoe UI",Arial,sans-serif; color: var(--ink); font-size: 8.5pt; line-height: 1.38; }
-  .page { width: 210mm; height: 297mm; padding: 11mm 14mm 8mm; display: flex; flex-direction: column; }
+  body { font-family: "CMU Serif", "Latin Modern Roman", "Times New Roman", serif; color: #000; font-size: 10.4pt; line-height: 1.22; }
+  .page { width: 210mm; height: 297mm; padding: 11mm 14mm 9mm; }
+  a { color: inherit; text-decoration: underline; text-decoration-thickness: 0.5pt; text-underline-offset: 1.2pt; }
 
-  header { padding-bottom: 3.6mm; border-bottom: 1.4px solid var(--ink); }
-  h1 { font-size: 25pt; font-weight: 700; letter-spacing: -0.02em; line-height: 1.05; }
-  .role { margin-top: 1.4mm; font-size: 10.5pt; font-weight: 500; color: var(--accent); letter-spacing: 0.01em; }
-  .contact { margin-top: 2.8mm; display: flex; flex-wrap: wrap; gap: 1.2mm 5.5mm; font-size: 8.3pt; color: var(--dim); }
-  .contact > * { display: inline-flex; align-items: center; gap: 1.8mm; color: inherit; text-decoration: none; }
-  .contact svg { width: 3.3mm; height: 3.3mm; flex: none; color: var(--accent); }
-  .contact .stroke { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
-  .contact .fill { fill: currentColor; }
-  .contact .break { flex-basis: 100%; height: 0; margin: -0.7mm 0; }
+  h1 { text-align: center; font-size: 26pt; font-weight: 700; font-variant: small-caps; line-height: 1.05; letter-spacing: 0.01em; }
+  .contact { text-align: center; font-size: 9.6pt; margin-top: 1.6mm; line-height: 1.35; }
+  .sep { padding: 0 0.7ex; }
 
-  section { margin-top: 3.8mm; }
-  h2 { font-size: 7.6pt; font-weight: 700; letter-spacing: 0.2em; text-transform: uppercase; color: var(--accent);
-       padding-bottom: 1.1mm; border-bottom: 1px solid var(--line); margin-bottom: 2.2mm; }
-  .summary { color: var(--dim); }
+  h2 { font-size: 12.6pt; font-weight: 400; font-variant: small-caps; letter-spacing: 0.02em; line-height: 1.1;
+       margin-top: 4.2mm; padding-bottom: 0.2mm; border-bottom: 0.5pt solid #000; margin-bottom: 1.3mm; }
 
-  .item { margin-bottom: 2.3mm; }
-  .item:last-child { margin-bottom: 0; }
+  .summary { font-size: 10pt; text-align: justify; margin-top: 0.4mm; }
+  .entry { margin-top: 1.5mm; }
   .row { display: flex; justify-content: space-between; align-items: baseline; gap: 4mm; }
-  .title { font-weight: 600; font-size: 9.4pt; }
-  .org { color: var(--dim); font-weight: 500; }
-  .date { font-size: 8pt; color: var(--faint); white-space: nowrap; font-weight: 500; }
-  .sub { color: var(--dim); }
-  .tech { font-size: 7.9pt; color: var(--faint); font-weight: 500; }
-  ul { margin-top: 0.9mm; padding-left: 4mm; }
-  li { color: var(--dim); margin-bottom: 0.5mm; padding-left: 0.5mm; }
-  li::marker { color: var(--accent); }
+  .row b { font-size: 10.6pt; }
+  .small { font-size: 9.6pt; }
+  .stack { font-size: 9.8pt; }
 
-  .skills { display: grid; grid-template-columns: 33mm 1fr; row-gap: 1.2mm; column-gap: 3mm; }
-  .skills dt { font-weight: 600; font-size: 8.6pt; }
-  .skills dd { color: var(--dim); }
+  ul { list-style: none; margin: 0.5mm 0 0 4.6mm; font-size: 10pt; }
+  li { position: relative; padding-left: 2.8mm; margin-top: 0.35mm; }
+  li::before { content: "\2022"; position: absolute; left: 0; font-size: 8pt; line-height: 1.7; }
+
+  .skills { margin: 1mm 0 0 3.8mm; font-size: 10pt; }
+  .skills p { margin-top: 0.3mm; }
 </style>
 </head>
 <body>
 <div class="page">
-  <header>
-    <h1>Ahmed Ali</h1>
-    <p class="role">AI/ML Engineer &nbsp;·&nbsp; GenAI &amp; Agentic Systems</p>
-    <p class="contact">
-      <a href="mailto:theahmedalii82@gmail.com"><svg class="stroke" viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></svg>theahmedalii82@gmail.com</a>
-      <span><svg class="stroke" viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"/></svg>+91 90001 89973</span>
-      <span><svg class="stroke" viewBox="0 0 24 24"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>Hyderabad, India</span>
-      <span class="break"></span>
-      <a href="https://www.linkedin.com/in/ahmed-ali-aiml2006/"><svg class="fill" viewBox="0 0 24 24"><path d="M20.45 20.45h-3.56v-5.58c0-1.33-.02-3.04-1.85-3.04-1.86 0-2.14 1.45-2.14 2.95v5.67H9.34V9h3.42v1.56h.05c.48-.9 1.64-1.85 3.38-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28ZM5.34 7.43a2.07 2.07 0 1 1 0-4.13 2.07 2.07 0 0 1 0 4.13ZM7.12 20.45H3.56V9h3.56v11.45ZM22.22 0H1.77C.8 0 0 .78 0 1.75v20.5C0 23.22.8 24 1.77 24h20.45c.98 0 1.78-.78 1.78-1.75V1.75C24 .78 23.2 0 22.22 0Z"/></svg>linkedin.com/in/ahmed-ali-aiml2006</a>
-      <a href="https://github.com/ahmedali-aihub"><svg class="fill" viewBox="0 0 24 24"><path d="M12 .5C5.73.5.98 5.24.98 11.52c0 5.02 3.26 9.28 7.78 10.78.57.1.78-.25.78-.55 0-.27-.01-1.16-.02-2.11-3.17.69-3.84-1.35-3.84-1.35-.52-1.32-1.27-1.67-1.27-1.67-1.04-.71.08-.7.08-.7 1.15.08 1.75 1.18 1.75 1.18 1.02 1.75 2.68 1.24 3.33.95.1-.74.4-1.24.72-1.53-2.53-.29-5.19-1.27-5.19-5.63 0-1.24.44-2.26 1.17-3.06-.12-.29-.51-1.45.11-3.02 0 0 .96-.31 3.14 1.17a10.9 10.9 0 0 1 5.72 0c2.18-1.48 3.14-1.17 3.14-1.17.62 1.57.23 2.73.11 3.02.73.8 1.17 1.82 1.17 3.06 0 4.37-2.67 5.34-5.21 5.62.41.36.77 1.06.77 2.14 0 1.54-.01 2.79-.01 3.17 0 .3.2.66.79.55 4.51-1.51 7.77-5.77 7.77-10.79C23.02 5.24 18.27.5 12 .5Z"/></svg>github.com/ahmedali-aihub</a>
-    </p>
-  </header>
+  <h1>Ahmed Ali</h1>
+  <p class="contact">
+    +91 90001 89973 <span class="sep">|</span> <a href="mailto:theahmedalii82@gmail.com">theahmedalii82@gmail.com</a> <span class="sep">|</span> Hyderabad, India<br>
+    <a href="https://www.linkedin.com/in/ahmed-ali-aiml2006/">linkedin.com/in/ahmed-ali-aiml2006</a> <span class="sep">|</span> <a href="https://github.com/ahmedali-aihub">github.com/ahmedali-aihub</a>
+  </p>
 
-  <section><h2>Profile</h2><p class="summary">AI/ML engineer building RAG pipelines, LLM agents and production ML services with Python, FastAPI and LangChain. Working full-time at Yuva Intelli AI Solutions while completing a Bachelor's in AI &amp; ML (2025–2028).</p></section>
-  <section><h2>Education</h2>
-    <div class="item">
-      <div class="row"><div><span class="title">Shadan College of Engineering and Technology</span> <span class="org">· Bachelor's degree, AI &amp; Machine Learning</span></div><span class="date">Jul 2025 – Jun 2028 (expected)</span></div>
+  <h2>Summary</h2>
+  <p class="summary">AI/ML engineer building RAG pipelines, LLM agents and production ML services with Python, FastAPI and LangChain. Working full-time at Yuva Intelli AI Solutions while completing a Bachelor's in AI &amp; ML (2025–2028).</p>
+
+  <h2>Education</h2>
+    <div class="entry">
+      <div class="row"><b>Shadan College of Engineering and Technology</b><span>Jul 2025 – Jun 2028 (expected)</span></div>
+      <div class="row small"><i>Bachelor's degree, AI &amp; Machine Learning</i><i></i></div>
+      
     </div>
-    <div class="item">
-      <div class="row"><div><span class="title">Jawaharlal Nehru Government Polytechnic College</span> <span class="org">· Diploma, Mechanical Engineering</span></div><span class="date">Aug 2022 – May 2025</span></div>
-    </div></section>
-  <section><h2>Experience</h2>
-    <div class="item">
-      <div class="row"><div><span class="title">AI/ML Associate Engineer</span> <span class="org">· Yuva Intelli AI Solutions</span></div><span class="date">Jul 2025 – Present</span></div>
+    <div class="entry">
+      <div class="row"><b>Jawaharlal Nehru Government Polytechnic College</b><span>Aug 2022 – May 2025</span></div>
+      <div class="row small"><i>Diploma, Mechanical Engineering</i><i></i></div>
+      
+    </div>
+  <h2>Experience</h2>
+    <div class="entry">
+      <div class="row"><b>AI/ML Associate Engineer</b><span>Jul 2025 – Present</span></div>
+      <div class="row small"><i>Yuva Intelli AI Solutions</i><i>Nampally, Telangana</i></div>
       <ul><li>Build AI assistants and RAG systems with Python, FastAPI, LangChain, Ollama and vector databases.</li><li>Develop LLM agents and NLP solutions, plus face-recognition and speech-recognition features.</li><li>Own ML workflows end to end, from training and explainability to API-first serving.</li></ul>
     </div>
-    <div class="item">
-      <div class="row"><div><span class="title">Data Scientist Intern</span> <span class="org">· TechZone Academy</span></div><span class="date">Jan 2025 – Jun 2025</span></div>
-      <ul><li>Delivered data preprocessing, exploratory analysis, model building and predictive analytics on real-world projects.</li><li>Worked in Python, Pandas, NumPy and Scikit-learn alongside mentors and teams on ML, NLP and automation tasks.</li></ul>
-    </div></section>
-  <section><h2>Projects</h2>
-    <div class="item">
-      <div class="row"><div><span class="title">Session-Based Recommender System</span> <span class="tech">· TensorFlow · FastAPI · Streamlit · React</span></div></div>
-      <ul><li>Trained a GRU4Rec model on 20M real e-commerce click events to predict a visitor's next item from their last few clicks, with no login.</li><li>Served it via FastAPI behind a React storefront of ~140K products, deployed live across Vercel, Render and Aiven.</li></ul>
+    <div class="entry">
+      <div class="row"><b>Data Scientist Intern</b><span>Jan 2025 – Jun 2025</span></div>
+      <div class="row small"><i>TechZone Academy</i><i>Hyderabad</i></div>
+      <ul><li>Performed data preprocessing, exploratory analysis, model building and predictive analytics.</li><li>Used Python, Pandas, NumPy and Scikit-learn with mentors and teams on ML, NLP and automation work.</li></ul>
     </div>
-    <div class="item">
-      <div class="row"><div><span class="title">Calendar &amp; Email Agents</span> <span class="tech">· LangGraph · LangChain · OpenRouter · Google Calendar API</span></div></div>
-      <ul><li>LangGraph scheduling agent that reads intent, checks availability, and books, moves or cancels Google Calendar events.</li><li>LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models by task complexity.</li></ul>
+  <h2>Projects</h2>
+    <div class="entry">
+      <div class="row"><span><b>Session-Based Recommender System</b> <span class="sep">|</span> <i class="stack">TensorFlow, FastAPI, Streamlit, React</i></span><span></span></div>
+      <ul><li>Trained a GRU4Rec model on 20M real e-commerce click events to predict each visitor's next item.</li><li>Served via FastAPI behind a React storefront of ~140K products; deployed on Vercel, Render and Aiven.</li></ul>
     </div>
-    <div class="item">
-      <div class="row"><div><span class="title">Text-to-SQL RAG Pipeline</span> <span class="tech">· FastAPI · SQLAlchemy · MySQL · Anthropic API</span></div></div>
+    <div class="entry">
+      <div class="row"><span><b>Calendar &amp; Email Agents</b> <span class="sep">|</span> <i class="stack">LangGraph, LangChain, OpenRouter, Google Calendar API</i></span><span></span></div>
+      <ul><li>LangGraph scheduling agent that checks availability and books, moves or cancels Google Calendar events.</li><li>LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models.</li></ul>
+    </div>
+    <div class="entry">
+      <div class="row"><span><b>Text-to-SQL RAG Pipeline</b> <span class="sep">|</span> <i class="stack">FastAPI, SQLAlchemy, MySQL, Anthropic API</i></span><span></span></div>
       <ul><li>Turns plain-English questions into MySQL queries using retrieval-augmented context and the Anthropic API.</li></ul>
     </div>
-    <div class="item">
-      <div class="row"><div><span class="title">Agentic Conference Registration Bot</span> <span class="tech">· Serper API · Playwright · Headless Browsers</span></div></div>
+    <div class="entry">
+      <div class="row"><span><b>Agentic Conference Registration Bot</b> <span class="sep">|</span> <i class="stack">Serper API, Playwright, Headless Browsers</i></span><span></span></div>
       <ul><li>Team-built agent that finds relevant conferences and completes registration autonomously via headless browsers.</li></ul>
     </div>
-    <div class="item">
-      <div class="row"><div><span class="title">Portfolio with a Live RAG Assistant</span> <span class="tech">· React · FastAPI · scikit-learn · OpenRouter</span></div><span class="date">github.com/ahmedali-aihub/Portfolio</span></div>
+    <div class="entry">
+      <div class="row"><span><b>Portfolio with a Live RAG Assistant</b> <span class="sep">|</span> <i class="stack">React, FastAPI, scikit-learn, OpenRouter</i></span><span><a href="https://github.com/ahmedali-aihub/Portfolio">GitHub</a></span></div>
       <ul><li>RAG chat assistant with TF-IDF retrieval over a curated knowledge base, streamed over Server-Sent Events.</li><li>Automatic fallback across a chain of free-tier LLMs keeps answers flowing when a model is unavailable.</li></ul>
     </div>
-    <div class="item">
-      <div class="row"><div><span class="title">Applied ML &amp; Computer Vision</span> <span class="tech">· Scikit-learn · SHAP · TensorFlow/Keras · Streamlit</span></div></div>
+    <div class="entry">
+      <div class="row"><span><b>Applied ML &amp; Computer Vision</b> <span class="sep">|</span> <i class="stack">Scikit-learn, SHAP, TensorFlow/Keras, Streamlit</i></span><span></span></div>
       <ul><li>Heart-disease risk classifier (decision tree) with SHAP explanations for every prediction.</li><li>Smoking-detection image classifier in TensorFlow/Keras, deployed as a Streamlit app.</li></ul>
-    </div></section>
-  <section><h2>Technical Skills</h2><dl class="skills"><dt>Agentic AI &amp; LLMs</dt><dd>AI Agents, LangChain, LangGraph, CrewAI, AutoGen, MCP Servers, Prompt Engineering, Hugging Face, Anthropic, OpenRouter</dd><dt>RAG &amp; Search</dt><dd>RAG, Vector DBs, FAISS, TF-IDF</dd><dt>ML &amp; Modeling</dt><dd>Python, NumPy, Pandas, TensorFlow, Keras, PyTorch, Scikit-learn, NLP, SHAP, Statistics, Data Science, Jupyter</dd><dt>LLM Engineering</dt><dd>Transformers, Ollama, vLLM, LangSmith, LLM Evals, Guardrails, LoRA, RLHF</dd><dt>Backend &amp; Tools</dt><dd>FastAPI, REST APIs, Streamlit, Docker, MySQL, SQLAlchemy, Playwright, Selenium, Git, GitHub Actions, Linux</dd></dl></section>
+    </div>
+  <h2>Technical Skills</h2>
+  <div class="skills"><p><b>Agentic AI &amp; LLMs:</b> AI Agents, LangChain, LangGraph, CrewAI, AutoGen, MCP Servers, Prompt Engineering, Hugging Face, Anthropic, OpenRouter</p><p><b>RAG &amp; Search:</b> RAG, Vector DBs, FAISS, TF-IDF</p><p><b>ML &amp; Modeling:</b> Python, NumPy, Pandas, TensorFlow, Keras, PyTorch, Scikit-learn, NLP, SHAP, Statistics, Data Science, Jupyter</p><p><b>LLM Engineering:</b> Transformers, Ollama, vLLM, LangSmith, LLM Evals, Guardrails, LoRA, RLHF</p><p><b>Backend &amp; Tools:</b> FastAPI, REST APIs, Streamlit, Docker, MySQL, SQLAlchemy, Playwright, Selenium, Git, GitHub Actions, Linux</p></div>
 </div>
 </body>
 </html>
