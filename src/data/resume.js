@@ -14,7 +14,7 @@ export const resume = {
   },
 
   summary:
-    "AI/ML engineer specialising in RAG pipelines, agentic LLM systems and production ML services, built with Python, FastAPI, LangChain and LangGraph. Currently an AI/ML Associate Engineer at Yuva Intelli AI Solutions, shipping AI assistants, RAG systems and NLP features, while completing a Bachelor's degree in AI & Machine Learning (2025–2028). Comfortable across the full applied-AI stack, from model training and explainability to API-first serving and agent orchestration. Active in AI communities and hackathons.",
+    "AI/ML engineer specialising in RAG pipelines, agentic LLM systems and production ML services, built with Python, FastAPI, LangChain and LangGraph. Currently an AI/ML Associate Engineer at Yuva Intelli AI Solutions, shipping AI assistants, RAG systems and NLP features, while completing a Bachelor's degree in AI & Machine Learning (2025–2028). Comfortable across the full applied-AI stack, from model training and explainability to API-first serving and agent orchestration.",
 
   education: [
     {
