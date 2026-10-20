@@ -1,12 +1,10 @@
-// Single source of truth for the resume. Both the interactive page
-// (src/resume/) and the PDF (scripts/build-resume.mjs) read from here.
+// Single source of truth for the resume PDF (scripts/build-resume.mjs).
 // Dates and roles follow the LinkedIn profile.
 
 export const resume = {
   name: "Ahmed Ali",
   title: "AI/ML Engineer",
   subtitle: "GenAI & Agentic Systems",
-  tagline: "Building systems where language models retrieve, reason and act.",
   contact: {
     email: "theahmedalii82@gmail.com",
     phone: "+91 90001 89973",
@@ -14,32 +12,9 @@ export const resume = {
     linkedin: "https://www.linkedin.com/in/ahmed-ali-aiml2006/",
     github: "https://github.com/ahmedali-aihub",
   },
-  pdf: "/Ahmed-Ali-Resume.pdf",
 
   summary:
     "AI/ML engineer building RAG pipelines, LLM agents and production ML services with Python, FastAPI and LangChain. Working full-time at Yuva Intelli AI Solutions while completing a Bachelor's in AI & ML (2025–2028).",
-
-  highlights: [
-    {
-      title: "Ships to production",
-      text: "Building RAG systems and LLM agents for real use cases at Yuva Intelli AI Solutions.",
-    },
-    {
-      title: "Full-stack AI",
-      text: "Comfortable from model training and explainability to FastAPI serving and cloud deployment.",
-    },
-    {
-      title: "Learns by building",
-      text: "Working full-time while studying for a Bachelor's in AI & ML, with a steady stream of shipped projects.",
-    },
-  ],
-
-  stats: [
-    { value: 20, suffix: "M", label: "real click events modelled" },
-    { value: 140, suffix: "K", label: "products served live" },
-    { value: 6, suffix: "", label: "AI/ML projects built" },
-    { value: 2, suffix: "", label: "industry roles since 2025" },
-  ],
 
   education: [
     {
@@ -67,7 +42,6 @@ export const resume = {
         "Develop LLM agents and NLP solutions, plus face-recognition and speech-recognition features.",
         "Own ML workflows end to end, from training and explainability to API-first serving.",
       ],
-      tags: ["Python", "FastAPI", "LangChain", "Ollama", "RAG", "Vector DBs", "NLP", "AI Agents"],
     },
     {
       role: "Data Scientist Intern",
@@ -78,7 +52,6 @@ export const resume = {
         "Performed data preprocessing, exploratory analysis, model building and predictive analytics.",
         "Used Python, Pandas, NumPy and Scikit-learn with mentors and teams on ML, NLP and automation work.",
       ],
-      tags: ["Python", "Pandas", "NumPy", "Scikit-learn", "NLP", "Data Science"],
     },
   ],
 
@@ -91,7 +64,6 @@ export const resume = {
         "Trained a GRU4Rec model on 20M real e-commerce click events to predict each visitor's next item.",
         "Served via FastAPI behind a React storefront of ~140K products; deployed on Vercel, Render and Aiven.",
       ],
-      tags: ["TensorFlow", "FastAPI", "Streamlit", "React", "Python"],
     },
     {
       name: "Calendar & Email Agents",
@@ -101,7 +73,6 @@ export const resume = {
         "LangGraph scheduling agent that checks availability and books, moves or cancels Google Calendar events.",
         "LLM email agent that triages and drafts replies, routing between LangChain tools and OpenRouter models.",
       ],
-      tags: ["LangGraph", "LangChain", "OpenRouter", "AI Agents", "Python"],
     },
     {
       name: "Text-to-SQL RAG Pipeline",
@@ -110,7 +81,6 @@ export const resume = {
       bullets: [
         "Turns plain-English questions into MySQL queries using retrieval-augmented context and the Anthropic API.",
       ],
-      tags: ["RAG", "FastAPI", "SQLAlchemy", "MySQL", "Anthropic", "Python"],
     },
     {
       name: "Agentic Conference Registration Bot",
@@ -119,7 +89,6 @@ export const resume = {
       bullets: [
         "Team-built agent that finds relevant conferences and completes registration autonomously via headless browsers.",
       ],
-      tags: ["Playwright", "AI Agents", "Python"],
     },
     {
       name: "Portfolio with a Live RAG Assistant",
@@ -130,7 +99,6 @@ export const resume = {
         "RAG chat assistant with TF-IDF retrieval over a curated knowledge base, streamed over Server-Sent Events.",
         "Automatic fallback across a chain of free-tier LLMs keeps answers flowing when a model is unavailable.",
       ],
-      tags: ["RAG", "FastAPI", "React", "OpenRouter", "Scikit-learn", "Python"],
     },
     {
       name: "Applied ML & Computer Vision",
@@ -140,7 +108,6 @@ export const resume = {
         "Heart-disease risk classifier (decision tree) with SHAP explanations for every prediction.",
         "Smoking-detection image classifier in TensorFlow/Keras, deployed as a Streamlit app.",
       ],
-      tags: ["Scikit-learn", "SHAP", "TensorFlow", "Keras", "Streamlit", "Python", "Statistics"],
     },
   ],
 

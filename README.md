@@ -24,11 +24,10 @@ streamed through a free-tier LLM with automatic model fallback). The
 src/
   components/       UI, one component per section
   data/content.js   All portfolio copy and project data — edit here, not in JSX
-  data/resume.js    Resume content: feeds the PDF and the interactive resume page
-  resume/           Interactive resume page (served at /resume.html)
+  data/resume.js    Resume content that feeds the PDF
   index.css         Design tokens (colors, fonts) + custom animations
 scripts/            build-resume.mjs — generates the resume HTML and PDF
-resume/             Generated resume.html + bundled Computer Modern fonts
+resume/             Generated resume.html (PDF source) + bundled Computer Modern fonts
 backend/
   app/              FastAPI service (see backend/README.md for internals)
 public/             Favicon, Open Graph image and the resume PDF
@@ -45,8 +44,7 @@ npm run resume       # writes resume/resume.html and public/Ahmed-Ali-Resume.pdf
 
 The PDF follows the single-column "Jake's Resume" layout and must stay on one
 page; the script warns if it spills over. It prints with headless Chrome (set
-`CHROME_PATH` if Chrome is installed somewhere unusual). The interactive page
-reads the same data, so both stay in sync.
+`CHROME_PATH` if Chrome is installed somewhere unusual).
 
 ## Local development
 
