@@ -6,6 +6,7 @@ import { GithubIcon, LinkedinIcon } from "./icons";
 import Reveal from "./Reveal";
 import MaskText from "./MaskText";
 import MagneticButton from "./MagneticButton";
+import PullButton from "./PullButton";
 import TiltCard from "./TiltCard";
 
 const links = [
@@ -88,23 +89,37 @@ export default function Contact() {
           </MagneticButton>
         </Reveal>
 
-        <Reveal delay={0.18} className="mt-4 flex flex-wrap items-center justify-center gap-3">
-          <MagneticButton
-            as="a"
-            {...{ href: profile.resume, target: "_blank", rel: "noopener noreferrer" }}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line)] px-6 py-3 font-heading text-sm font-semibold text-[var(--color-ink)] transition-colors hover:border-[var(--color-silver-dim)]"
+        <Reveal delay={0.18} className="mt-14 flex flex-wrap items-center justify-center gap-x-20 gap-y-8">
+          <PullButton
+            href={profile.linkedin}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full bg-[var(--color-silver-bright)] px-9 py-4 font-heading text-sm font-semibold text-[var(--color-void)]"
           >
-            <FileText size={15} strokeWidth={1.8} />
-            View Resume
-          </MagneticButton>
-          <MagneticButton
-            as="a"
-            {...{ href: profile.resume, download: "Ahmed-Ali-Resume.pdf" }}
-            className="inline-flex items-center gap-2 rounded-full border border-[var(--color-line)] px-6 py-3 font-heading text-sm font-semibold text-[var(--color-ink-dim)] transition-colors hover:border-[var(--color-silver-dim)] hover:text-[var(--color-ink)]"
+            <LinkedinIcon size={16} />
+            Let&apos;s collaborate
+          </PullButton>
+          <PullButton
+            href={profile.resume}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="rounded-full border border-[var(--color-silver-dim)] px-9 py-4 font-heading text-sm font-semibold text-[var(--color-ink)]"
           >
-            <Download size={15} strokeWidth={1.8} />
+            <FileText size={16} strokeWidth={1.8} />
+            View my resume
+          </PullButton>
+        </Reveal>
+
+        <Reveal delay={0.22} className="mt-6">
+          <a
+            href={profile.resume}
+            download="Ahmed-Ali-Resume.pdf"
+            data-cursor="hover"
+            className="inline-flex items-center gap-1.5 text-xs text-[var(--color-ink-faint)] transition-colors hover:text-[var(--color-ink)]"
+          >
+            <Download size={13} strokeWidth={1.8} />
             Download PDF
-          </MagneticButton>
+          </a>
         </Reveal>
 
         <Reveal delay={0.2} className="mt-20 flex flex-wrap items-center justify-center gap-4">

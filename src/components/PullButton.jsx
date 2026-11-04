@@ -9,7 +9,7 @@ import { motion, useMotionValue, useReducedMotion, useSpring, useTransform } fro
  * trails slightly behind for depth. Leave the field and it snaps back.
  * Touch devices and reduced-motion users get a plain button.
  */
-export default function PullButton({ children, className = "", radius = 200, maxPull = 40, ...props }) {
+export default function PullButton({ children, className = "", radius = 200, maxPull = 30, ...props }) {
   const wrapRef = useRef(null);
   const reduced = useReducedMotion();
 
