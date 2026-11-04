@@ -6,12 +6,12 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
  *
  * It follows the mouse, but PullButton can grab it: that component writes an
  * offset into `window.__webPull`, and the hand is drawn at mouse + offset, so
- * a nearby button visibly hauls it in. While gripped the fingers hook and the
- * whole hand swings round to hang from the web, fingers trailing away from the
- * button. Everywhere else it hangs quietly from the pointer.
+ * a nearby button visibly hauls it in. The hand dangles from the web like
+ * something on a rope: it stays hanging fingers-down and only swings a little
+ * toward the side the web is pulling from. While gripped the fingers hook.
  *
  * The pointer's hotspot is the top of the wrist, which is also where the web
- * ties on, and the hand rotates about that point.
+ * ties on, and the hand swings about that point.
  */
 
 export default function CustomCursor() {
@@ -24,7 +24,8 @@ export default function CustomCursor() {
   const sx = useSpring(x, { stiffness: 900, damping: 42, mass: 0.35 });
   const sy = useSpring(y, { stiffness: 900, damping: 42, mass: 0.35 });
   const tilt = useMotionValue(0);
-  const stilt = useSpring(tilt, { stiffness: 170, damping: 20 });
+  // Underdamped on purpose: a hand on a rope overshoots and settles.
+  const stilt = useSpring(tilt, { stiffness: 140, damping: 11 });
 
   const mouse = useRef({ x: -200, y: -200 });
 
@@ -45,15 +46,17 @@ export default function CustomCursor() {
       x.set(mouse.current.x + (held ? slot.x : 0));
       y.set(mouse.current.y + (held ? slot.y : 0));
 
-      // The hand is drawn hanging straight down from its wrist. Pulled by the
-      // wrist, it trails: its fingers point away from the button, along the
-      // line (ux, uy) from the button to the hand. Rotating (0, 1) onto that
-      // direction is atan2(-ux, uy). Eased in with the grip and capped, so a
-      // weak pull only nudges it and it never swings fully upside down.
+      // Hang the hand like a pendulum. Gravity pulls it straight down, the web
+      // pulls it away from the button along (ux, uy), and it settles between
+      // the two, so its fingers always point down-ish and never sideways or up.
+      // Turning "down" onto direction (dx, dy) is atan2(-dx, dy); the swing is
+      // capped, and eased in with the grip so a weak pull only nudges it.
       let deg = 0;
       if (held && g > 0.02) {
-        const theta = (Math.atan2(-slot.ux, slot.uy) * 180) / Math.PI;
-        deg = Math.max(-100, Math.min(100, theta)) * Math.min(1, g * 2) * (slot.near ?? 1);
+        const dx = slot.ux * 0.8;
+        const dy = slot.uy * 0.8 + 1;
+        const theta = (Math.atan2(-dx, dy) * 180) / Math.PI;
+        deg = Math.max(-55, Math.min(55, theta)) * Math.min(1, g * 2) * (slot.near ?? 1);
       }
       tilt.set(deg);
       setGrip((prev) => (Math.abs(prev - g) > 0.02 ? g : prev));
@@ -75,9 +78,9 @@ export default function CustomCursor() {
   return (
     <motion.div
       className="cursor-dot"
-      // Rotate and scale about the cursor point (the wrist), not the box centre.
+      // Swing and scale about the cursor point (the wrist), not the box centre.
       style={{ x: sx, y: sy, rotate: stilt, originX: 0, originY: 0 }}
-      animate={{ opacity: visible ? 1 : 0, scale: active ? 1 : hovering ? 0.9 : 0.8 }}
+      animate={{ opacity: visible ? 1 : 0, scale: active ? 1 : hovering ? 0.92 : 0.82 }}
       transition={{ duration: 0.25 }}
     >
       <RoboHand grip={grip} hot={hovering || active} />
@@ -86,88 +89,88 @@ export default function CustomCursor() {
 }
 
 /*
- * The hand is drawn in a 42 x 50 box, with the top of the wrist at (21, 1).
+ * Drawn after the hand in the reel this cursor is modelled on: a pale,
+ * glove-like hand in dark ink. Tall finger bars sit shoulder to shoulder with
+ * dark dividers between them, each ends in a short rounded tip past a joint
+ * line, a long thumb angles out to one side, and a strapped cuff sits at the
+ * wrist where the web ties on.
  *
- * It is line-art on an opaque dark fill. The earlier versions were filled
- * silhouettes or bare strokes; at cursor size both fused the fingers into one
- * lump. An outline round each segment keeps every finger, and every joint,
- * readable at 1:1, and the opaque fill lets a finger hide the one it overlaps.
+ * Light fill with dark linework, not the other way round: the pale mass is
+ * what keeps the hand readable at cursor size against the dark page, and the
+ * dividers are what keep the fingers apart. Earlier dark-fill versions fused
+ * into a lump or into a handful of bubbles.
+ *
+ * The box is 44 x 52 with the top of the wrist at (22, 1).
  */
 
-const INK = "#0c0e15"; // fill: near-black, so outlines read against any background
-const KNUCKLE_Y = 23;
+const FILL = "#e6eaf4";
+const FILL_HOT = "#f7f9ff";
+const LINE = "#0d1018";
+const KNUCKLE_Y = 23; // fingers root here, under the palm, which covers the roots
 
-// Segment lengths for each digit, root to tip. `x` is where it leaves the palm,
-// `side` is which way it curls (toward the middle of the hand), `lag` staggers
-// the curl so a closing hand ripples rather than moving as one block.
-//
-// Two segments per finger, not three: with three, each one came out about as
-// wide as it was long, and a row of near-circles reads as a bunch of grapes.
-// Two long segments keep every finger a finger.
+// Segment lengths for each finger, root to tip. `x` is the finger's centre,
+// `side` is the way it hooks (toward the middle), and `lag` staggers the hook so
+// a closing hand ripples rather than moving as one block. Four 6.4-wide bars
+// across the 26-wide palm leave no gaps, only the dividers.
 const FINGERS = [
-  { x: 12.1, segs: [10.5, 8.2], side: -1, lag: 0.85 },
-  { x: 18.0, segs: [11.8, 9.0], side: -1, lag: 0.95 },
-  { x: 23.9, segs: [11.2, 8.4], side: 1, lag: 1.0 },
-  { x: 29.8, segs: [9.0, 6.8], side: 1, lag: 0.9 },
+  { x: 12.2, segs: [12.2, 8.6], side: -1, lag: 0.85 },
+  { x: 18.6, segs: [13.4, 9.4], side: -1, lag: 0.95 },
+  { x: 25.0, segs: [12.8, 9.0], side: 1, lag: 1.0 },
+  { x: 31.4, segs: [10.6, 7.6], side: 1, lag: 0.9 },
 ];
 
-// A finger is a chain of capsules, each hinged at the end of the one before.
-// Nested groups give the joints for free: a child inherits its parent's
-// rotation, so rotating one joint swings everything beyond it.
-function Chain({ segs, angles, w, i = 0 }) {
+// A finger is a chain of bars, each hinged at the end of the one before. Nested
+// groups give the joints for free: a child inherits its parent's rotation, so
+// turning one joint swings everything beyond it. The ends are only slightly
+// rounded, so each segment reads as a bar, like the reference, not a pill.
+function Chain({ segs, angles, w, radius = 2.4, i = 0 }) {
   if (i >= segs.length) return null;
   return (
     <g transform={`${i ? `translate(0 ${segs[i - 1]}) ` : ""}rotate(${angles[i].toFixed(1)})`}>
-      <rect x={-w / 2} y={0} width={w} height={segs[i]} rx={w / 2} />
-      <Chain segs={segs} angles={angles} w={w * 0.94} i={i + 1} />
+      <rect x={-w / 2} y={0} width={w} height={segs[i]} rx={Math.min(radius, w / 2)} />
+      <Chain segs={segs} angles={angles} w={w * 0.93} radius={radius} i={i + 1} />
     </g>
   );
 }
 
 function RoboHand({ grip, hot }) {
   const c = Math.min(1, Math.max(0, grip));
-  const stroke = hot ? "rgba(238,243,255,0.98)" : "rgba(190,202,238,0.9)";
 
   return (
     <svg
-      width="42"
-      height="50"
-      viewBox="0 0 42 50"
+      width="44"
+      height="52"
+      viewBox="0 0 44 52"
       strokeLinecap="round"
       strokeLinejoin="round"
-      // Wrist-top (21, 1) sits exactly on the cursor point.
-      style={{ position: "absolute", left: -21, top: -1, overflow: "visible" }}
+      // Wrist-top (22, 1) sits exactly on the cursor point.
+      style={{ position: "absolute", left: -22, top: -1, overflow: "visible" }}
     >
-      {/* grip flare behind the hand */}
-      {c > 0.08 && <circle cx="21" cy="26" r={20 + c * 8} fill="rgba(150,170,255,0.09)" opacity={c} />}
+      <g fill={hot ? FILL_HOT : FILL} stroke={LINE} strokeWidth="1.1">
+        {/* strapped cuff, behind the palm */}
+        <rect x="14" y="1" width="16" height="9" rx="2" />
+        <path d="M14 4h16M14 6.6h16" strokeWidth="0.8" fill="none" />
 
-      <g fill={INK} stroke={stroke} strokeWidth="1.05">
-        {/* wrist cuff, behind the palm */}
-        <path d="M15.2 1.4h11.6l1.5 8.4H13.7z" />
-        <path d="M14.4 5.4h13.2" strokeWidth="0.8" opacity="0.7" />
-
-        {/* thumb: hinged at the palm's outer edge, folding in as the grip closes */}
-        <g transform="translate(9.4 16.5)">
-          <Chain segs={[7.8, 6.2]} angles={[30 - c * 26, 12 - c * 40]} w={5.2} />
+        {/* thumb: a long bar angled out to the side, folding in as the grip closes */}
+        <g transform="translate(10.8 17)">
+          <Chain segs={[9.4, 7.2]} angles={[26 - c * 20, 10 - c * 30]} w={6.4} radius={3} />
         </g>
 
-        {/* fingers: slightly relaxed at rest, hooking inward as they grip */}
+        {/* fingers, under the palm so its lower edge is the knuckle line */}
         {FINGERS.map((f, i) => (
           <g key={i} transform={`translate(${f.x} ${KNUCKLE_Y})`}>
             <Chain
               segs={f.segs}
-              angles={[f.side * (2 + c * 16 * f.lag), f.side * (4 + c * 40 * f.lag)]}
-              w={4.6}
+              angles={[f.side * (1.5 + c * 9 * f.lag), f.side * (3 + c * 26 * f.lag)]}
+              w={6.4}
             />
           </g>
         ))}
 
-        {/* palm, over the roots of the fingers and thumb */}
-        <rect x="8.6" y="9" width="24.8" height="17" rx="4.6" />
-        {/* tendon lines */}
-        <path d="M14 14v8M21 13v9.5M28 14v8" strokeWidth="0.7" opacity="0.4" fill="none" />
-        {/* sensor core */}
-        <circle cx="21" cy="16.2" r="2.3" fill={hot ? "rgba(168,190,255,0.55)" : "rgba(150,168,220,0.3)"} />
+        {/* back of the hand: narrower at the wrist, widening to the knuckles */}
+        <path d="M13 8.4h18l3.6 14.1a3.5 3.5 0 0 1-3.4 4.3H12.8a3.5 3.5 0 0 1-3.4-4.3z" />
+        {/* tendons */}
+        <path d="M17 11.5v8M22 11v9.5M27 11.5v8" strokeWidth="0.8" opacity="0.5" fill="none" />
       </g>
     </svg>
   );
