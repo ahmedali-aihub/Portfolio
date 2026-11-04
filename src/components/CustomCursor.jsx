@@ -94,14 +94,19 @@ export default function CustomCursor() {
 
 // Fingers across the knuckle line, left to right: index to little.
 // `len` is the hanging length, `w` the thickness at the knuckle.
+//
+// These are tuned for legibility at ~30px, not for anatomy: the stroke width
+// is kept well under the spacing so a visible gap survives at cursor size,
+// and the fingers are short relative to the palm so the hand reads as a hand
+// rather than as a palm with sticks hanging off it.
 const FINGERS = [
-  { x: 8.6, len: 10.6, w: 2.5, lag: 0.82 },
-  { x: 12.0, len: 11.8, w: 2.6, lag: 0.92 },
-  { x: 15.3, len: 11.2, w: 2.5, lag: 1.0 },
-  { x: 18.4, len: 9.4, w: 2.3, lag: 0.9 },
+  { x: 9.6, len: 8.2, w: 2.0, lag: 0.82 },
+  { x: 13.0, len: 9.2, w: 2.1, lag: 0.92 },
+  { x: 16.4, len: 8.6, w: 2.0, lag: 1.0 },
+  { x: 19.6, len: 7.2, w: 1.9, lag: 0.9 },
 ];
 
-const KNUCKLE_Y = 16.4; // where the fingers leave the palm
+const KNUCKLE_Y = 15.0; // where the fingers leave the palm
 
 /*
  * One finger as a tapered capsule hanging from the knuckle, swinging inward
@@ -128,44 +133,41 @@ function finger({ x, len, w, lag }, c) {
 function RoboHand({ grip, hot }) {
   const c = Math.min(1, Math.max(0, grip));
   const line = hot ? "rgba(242,246,255,0.97)" : "rgba(208,218,250,0.86)";
-  const fill = hot ? "rgba(146,166,232,0.26)" : "rgba(116,136,206,0.16)";
 
   const digits = FINGERS.map((f) => finger(f, c));
 
   // The thumb hinges high on the near edge and hangs out to that side, so it
   // stays clear of the fingers; it folds in across them as the grip closes.
-  const ta = Math.PI / 2 + 0.60 - c * 0.30;
-  const tmx = 7.6 + Math.cos(ta) * 4.2;
-  const tmy = 12.4 + Math.sin(ta) * 4.2;
-  const ta2 = ta - 0.62 - c * 0.42;
-  const ttx = tmx + Math.cos(ta2) * 3.3;
-  const tty = tmy + Math.sin(ta2) * 3.3;
+  const ta = Math.PI / 2 + 0.70 - c * 0.34;
+  const tmx = 7.4 + Math.cos(ta) * 3.4;
+  const tmy = 13.0 + Math.sin(ta) * 3.4;
+  const ta2 = ta - 0.70 - c * 0.45;
+  const ttx = tmx + Math.cos(ta2) * 2.7;
+  const tty = tmy + Math.sin(ta2) * 2.7;
 
   return (
     <svg
       width="30"
-      height="34"
-      viewBox="0 0 30 34"
+      height="30"
+      viewBox="0 0 30 30"
       fill="none"
       strokeLinecap="round"
       strokeLinejoin="round"
-      /* Hotspot at the wrist, where the web ties on. */
-      style={{ transform: "translate(-14px, -3px)", overflow: "visible" }}
+      /* Hotspot at the top of the wrist, where the web ties on. */
+      style={{ transform: "translate(-15px, -3px)", overflow: "visible" }}
     >
       {/* grip flare behind the hand */}
       {c > 0.08 && (
-        <circle cx="14" cy="16" r={7 + c * 7} fill="rgba(170,190,255,0.12)" opacity={c} />
+        <circle cx="15" cy="14" r={7 + c * 6} fill="rgba(170,190,255,0.12)" opacity={c} />
       )}
 
-      {/* wrist: slim, where the strands tie on */}
-      <path d="M11.4 2.2h5.6l0.7 5.4h-7z" fill={fill} stroke={line} strokeWidth="1.3" />
-
-      {/* palm: a rounded back-of-hand, wider at the knuckles */}
+      {/* Palm and wrist as one solid silhouette. At cursor size an outlined
+          box with a cuff on top reads as a bag with a handle, so the shape is
+          filled and the wrist blends into the palm rather than sitting on it. */}
       <path
-        d="M10.6 7.0h7.6a2.4 2.4 0 0 1 2.4 2.2l0.5 7.4a1.8 1.8 0 0 1-1.8 1.9H9.3a1.8 1.8 0 0 1-1.8-1.9l0.6-7.4a2.4 2.4 0 0 1 2.5-2.2z"
-        fill={fill}
-        stroke={line}
-        strokeWidth="1.3"
+        d="M11.6 3.2h6.0a1.3 1.3 0 0 1 1.3 1.3v2.0h1.4a2.0 2.0 0 0 1 2.0 2.0v5.4a2.3 2.3 0 0 1-2.3 2.3H8.9a2.3 2.3 0 0 1-2.3-2.3V8.5a2.0 2.0 0 0 1 2.0-2.0h1.7v-2.0a1.3 1.3 0 0 1 1.3-1.3z"
+        fill={line}
+        stroke="none"
       />
 
       {/* fingers hanging from the knuckle line */}
@@ -178,14 +180,11 @@ function RoboHand({ grip, hot }) {
         />
       ))}
 
-      {/* knuckle line, tying the fingers to the palm */}
-      <path d="M8.0 16.2h11" stroke={line} strokeWidth="0.9" opacity="0.45" />
-
       {/* thumb last, so it reads in front of the fingers on the near side */}
       <path
-        d={`M7.6,12.4 L${tmx.toFixed(1)},${tmy.toFixed(1)} L${ttx.toFixed(1)},${tty.toFixed(1)}`}
+        d={`M7.4,13.0 L${tmx.toFixed(1)},${tmy.toFixed(1)} L${ttx.toFixed(1)},${tty.toFixed(1)}`}
         stroke={line}
-        strokeWidth="2.7"
+        strokeWidth="2.3"
       />
     </svg>
   );
