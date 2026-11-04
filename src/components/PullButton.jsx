@@ -1,54 +1,47 @@
 import { useEffect, useRef, useState } from "react";
-import { motion, useMotionValue, useMotionValueEvent, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 
 /*
- * A link-button that is pulled toward the cursor before you even touch it,
- * tethered to its resting place by elastic web strands.
+ * A link-button that shoots a web at your cursor and reels it in.
  *
- * Inside `radius` px of the button the pointer acts like a magnet: the button
- * drifts toward it on springs, tilts, swells and lights up, and the label
- * trails slightly behind for depth. The strands anchor to the side it is
- * pulled away from, stretching and sagging as it moves, invisible at rest.
- * Touch devices and reduced-motion users get a plain button.
+ * Inside `radius` px the button fires a bundle of strands from its near edge
+ * to the pointer, then drags the pointer toward itself: the rendered cursor is
+ * pulled off the real mouse position by a growing offset, so your hand feels
+ * the tug even though the OS pointer never moves. The button itself only
+ * leans a little toward you. Touch and reduced-motion users get a plain link.
+ *
+ * The cursor offset is published on `window.__webPull` (a single shared slot,
+ * claimed by whichever button is closest) and consumed by CustomCursor.
  */
 
-const STRANDS = 9;
-const ANCHOR_GAP = 34; // px the strand roots sit beyond the button's resting edge
-const PAD = 90; // px of SVG bleed around the button, so stretched strands aren't clipped
+const STRANDS = 11;
+const PAD = 520; // px of SVG bleed, so a web fired across the viewport is not clipped
+const CATCH = 0.42; // fraction of the gap the cursor gets dragged across at full grip
+const STANDOFF = 46; // px the hauled cursor is kept clear of the button's centre
 
-// Anchor points spread across the trailing edge of the button, in local
-// coordinates where (0,0) is the button's resting centre.
-function anchors(w, h) {
-  const out = [];
-  for (let i = 0; i < STRANDS; i++) {
-    const t = STRANDS === 1 ? 0.5 : i / (STRANDS - 1);
-    out.push({ u: (t - 0.5) * 2, hw: w / 2, hh: h / 2 });
-  }
-  return out;
-}
-
-export default function PullButton({ children, className = "", radius = 200, maxPull = 30, ...props }) {
+export default function PullButton({ children, className = "", radius = 320, lean = 10, ...props }) {
   const wrapRef = useRef(null);
-  const reduced = useReducedMotion();
   const [box, setBox] = useState(null);
   const [web, setWeb] = useState(false);
+  const enabled = useRef(false);
+
+  // Where the hand is being held, relative to the button's resting centre,
+  // plus the grip strength 0..1.
+  const px = useMotionValue(0);
+  const py = useMotionValue(0);
+  const grip = useMotionValue(0);
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
-  const scale = useMotionValue(1);
   const glow = useMotionValue(0);
 
-  const spring = { stiffness: 150, damping: 13, mass: 0.6 };
+  const spring = { stiffness: 170, damping: 15, mass: 0.6 };
   const sx = useSpring(x, spring);
   const sy = useSpring(y, spring);
-  const ss = useSpring(scale, { stiffness: 220, damping: 16 });
   const sg = useSpring(glow, { stiffness: 120, damping: 20 });
+  const sgrip = useSpring(grip, { stiffness: 220, damping: 26 });
+  const rotate = useTransform(sx, [-lean, lean], [-3, 3]);
 
-  const rotate = useTransform(sx, [-maxPull, maxPull], [-4, 4]);
-  const labelX = useTransform(sx, (v) => v * 0.28);
-  const labelY = useTransform(sy, (v) => v * 0.28);
-
-  // Measure once the button is laid out, and again when it resizes.
   useEffect(() => {
     const el = wrapRef.current;
     const measure = () => {
@@ -62,14 +55,26 @@ export default function PullButton({ children, className = "", radius = 200, max
   }, []);
 
   useEffect(() => {
-    if (reduced || !window.matchMedia("(pointer: fine)").matches) return undefined;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    if (reduced || !fine) return undefined;
+    enabled.current = true;
     const el = wrapRef.current;
+    const slot = (window.__webPull ||= { owner: null, x: 0, y: 0, grip: 0 });
+    const me = {};
 
-    const rest = () => {
+    const release = () => {
+      grip.set(0);
       x.set(0);
       y.set(0);
-      scale.set(1);
       glow.set(0);
+      setWeb(false);
+      if (slot.owner === me) {
+        slot.owner = null;
+        slot.x = 0;
+        slot.y = 0;
+        slot.grip = 0;
+      }
     };
 
     const onMove = (e) => {
@@ -80,126 +85,156 @@ export default function PullButton({ children, className = "", radius = 200, max
       const reach = radius + r.width / 2;
 
       if (dist >= reach) {
-        rest();
+        release();
         return;
       }
-      const t = 1 - dist / reach; // 0 at the edge of the field, 1 on the button's centre
-      const k = 0.5 * t;
-      const px = dx * k;
-      const py = dy * k;
-      const len = Math.hypot(px, py) || 1;
-      const cap = Math.min(1, maxPull / len);
-      x.set(px * cap);
-      y.set(py * cap);
-      scale.set(1 + 0.09 * t);
-      glow.set(Math.min(1, t * 1.4));
+      // Claim the shared cursor slot unless a nearer button has claimed it for
+      // this same pointer event. Stale claims (from an earlier move) lose.
+      const stamp = e.timeStamp;
+      if (slot.owner && slot.owner !== me && slot.stamp === stamp && slot.dist <= dist) {
+        release();
+        return;
+      }
+      slot.owner = me;
+      slot.dist = dist;
+      slot.stamp = stamp;
+
+      const t = 1 - dist / reach; // 0 at the edge of the field, 1 at the centre
+      const g = t * t * (3 - 2 * t); // smoothstep, so the grab bites rather than creeps
+
+      grip.set(g);
+      glow.set(Math.min(1, t * 1.5));
+      setWeb(true);
+
+      // Haul the drawn cursor toward the button along the web line, but never
+      // past the stand-off ring: the hand should be reeled up to the button,
+      // not dragged on top of the label.
+      const hauled = Math.max(STANDOFF, dist - (dist - STANDOFF) * CATCH * g);
+      const ux = dx / (dist || 1);
+      const uy = dy / (dist || 1);
+      slot.x = ux * hauled - dx;
+      slot.y = uy * hauled - dy;
+      slot.grip = g;
+
+      // The strands end where the hand actually ends up.
+      px.set(ux * hauled);
+      py.set(uy * hauled);
+
+      // The button leans into the pull, far less than the cursor moves.
+      const k = Math.min(1, lean / (dist || 1)) * g;
+      x.set(dx * k);
+      y.set(dy * k);
     };
 
     window.addEventListener("pointermove", onMove);
-    document.addEventListener("pointerleave", rest);
+    document.addEventListener("pointerleave", release);
+    window.addEventListener("blur", release);
     return () => {
       window.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerleave", rest);
+      document.removeEventListener("pointerleave", release);
+      window.removeEventListener("blur", release);
+      release();
     };
-  }, [reduced, radius, maxPull, x, y, scale, glow]);
-
-  // Mount the strand layer only while the button is actually displaced, so a
-  // page of resting buttons carries no extra SVG.
-  useMotionValueEvent(sx, "change", () => setWeb(Math.hypot(sx.get(), sy.get()) > 0.4));
-  useMotionValueEvent(sy, "change", () => setWeb(Math.hypot(sx.get(), sy.get()) > 0.4));
+  }, [radius, lean, px, py, grip, x, y, glow]);
 
   return (
     <div ref={wrapRef} className="relative isolate inline-block">
-      {box && web && !reduced && (
-        <Web box={box} sx={sx} sy={sy} maxPull={maxPull} />
-      )}
+      {box && web && <Web box={box} px={px} py={py} grip={sgrip} bx={sx} by={sy} />}
       <motion.span
         aria-hidden="true"
         style={{ x: sx, y: sy, opacity: sg }}
         className="pointer-events-none absolute -inset-3 -z-10 rounded-full bg-[radial-gradient(closest-side,rgba(200,210,255,0.35),transparent)] blur-xl"
       />
       <motion.a
-        style={{ x: sx, y: sy, scale: ss, rotate }}
+        style={{ x: sx, y: sy, rotate }}
+        whileHover={{ scale: 1.04 }}
         whileTap={{ scale: 0.96 }}
         data-cursor="hover"
         className={`relative inline-flex items-center justify-center will-change-transform ${className}`}
         {...props}
       >
-        <motion.span style={{ x: labelX, y: labelY }} className="inline-flex items-center gap-2.5">
-          {children}
-        </motion.span>
+        {children}
       </motion.a>
     </div>
   );
 }
 
 /*
- * The strands. Each is a quadratic curve from a fixed anchor in the page to a
- * point on the button's trailing edge; the control point sags behind the
- * button's travel, so the web whips as it springs back.
+ * The web: a bundle of strands fired from the button's near edge to the point
+ * where the cursor is being held. Each strand leaves from a slightly different
+ * spot on the rim and bows out by a different amount, so the bundle reads as
+ * rope rather than a single line, and the whole thing fades in with the grip.
  */
-function Web({ box, sx, sy, maxPull, stroke = "rgba(210,218,255,0.55)" }) {
-  const pathRefs = useRef([]);
-  const groupRef = useRef(null);
-  const pts = anchors(box.w, box.h);
+function Web({ box, px, py, grip, bx, by }) {
+  const paths = useRef([]);
+  const group = useRef(null);
   const cx = box.w / 2 + PAD;
   const cy = box.h / 2 + PAD;
+  const hw = box.w / 2;
+  const hh = box.h / 2;
 
   useEffect(() => {
     const render = () => {
-      const dx = sx.get();
-      const dy = sy.get();
-      const len = Math.hypot(dx, dy);
-      const t = Math.min(1, len / maxPull);
-      if (groupRef.current) groupRef.current.style.opacity = String(Math.min(0.85, t * 1.5));
+      const g = grip.get();
+      const dx = px.get();
+      const dy = py.get();
+      const len = Math.hypot(dx, dy) || 1;
+      const ux = dx / len;
+      const uy = dy / len;
 
-      // Unit vector of travel; strands anchor on the opposite side.
-      const ux = len > 0.01 ? dx / len : 0;
-      const uy = len > 0.01 ? dy / len : 0;
+      if (group.current) group.current.style.opacity = String(Math.min(0.9, g * 1.25));
 
-      pts.forEach((p, i) => {
-        const node = pathRefs.current[i];
-        if (!node) return;
-        // Spread the attachment across the button's trailing edge.
-        // Fan across the trailing edge: narrow on the short side, wide on the long.
-        const spread = p.u * (Math.abs(ux) > Math.abs(uy) ? p.hh * 1.5 : p.hw * 0.95);
-        const px = -uy * spread;
-        const py = ux * spread;
+      // px/py are already the held position of the hand.
+      const tipx = cx + dx;
+      const tipy = cy + dy;
+      // The rim moves with the button's lean.
+      const rimcx = cx + bx.get();
+      const rimcy = cy + by.get();
 
-        // Edge of the button along the travel axis, plus a fixed stand-off:
-        // the anchors sit in the page, so the gap grows as the button leaves.
-        const edge = Math.abs(ux) > Math.abs(uy) ? p.hw : p.hh;
-        const reach = edge + ANCHOR_GAP;
-        // Anchor: fixed in the page, behind the direction of travel.
-        const ax = cx - ux * reach + px * 1.6;
-        const ay = cy - uy * reach + py * 1.6;
-        // Tip: rides with the button, gripping its trailing edge.
-        const tx = cx + dx - ux * edge * 0.92 + px * 0.45;
-        const ty = cy + dy - uy * edge * 0.92 + py * 0.45;
-        // Sag: the midpoint lags behind the travel and fans outward.
+      for (let i = 0; i < STRANDS; i++) {
+        const node = paths.current[i];
+        if (!node) continue;
+        const u = STRANDS === 1 ? 0 : (i / (STRANDS - 1) - 0.5) * 2; // -1..1
+
+        // Launch point: on the rim facing the hand, spread across that edge.
+        // Project the unit direction onto the button's box to find the rim.
+        const scale = 1 / Math.max(Math.abs(ux) / hw, Math.abs(uy) / hh);
+        const perpx = -uy;
+        const perpy = ux;
+        const spread = u * Math.min(hw, hh) * 0.9;
+        const ax = rimcx + ux * scale * 0.92 + perpx * spread;
+        const ay = rimcy + uy * scale * 0.92 + perpy * spread;
+
+        // Converge on the cursor with a small bundle offset, so the strands
+        // meet in a fist rather than a point.
+        const tx = tipx + perpx * u * 5;
+        const ty = tipy + perpy * u * 5;
+
+        // Bow: strands sag away from the line, more for the outer ones.
         const span = Math.hypot(tx - ax, ty - ay);
-        const mx = (ax + tx) / 2 - ux * span * 0.1 - uy * p.u * span * 0.22;
-        const my = (ay + ty) / 2 - uy * span * 0.1 + ux * p.u * span * 0.22;
+        const bow = u * span * 0.07 * (1 - g * 0.55);
+        const mx = (ax + tx) / 2 + perpx * bow;
+        const my = (ay + ty) / 2 + perpy * bow;
 
         node.setAttribute("d", `M${ax.toFixed(1)},${ay.toFixed(1)} Q${mx.toFixed(1)},${my.toFixed(1)} ${tx.toFixed(1)},${ty.toFixed(1)}`);
-        node.setAttribute("stroke-width", (1.7 - 0.75 * t).toFixed(2));
-      });
+        node.setAttribute("stroke-width", (1.5 - 0.6 * Math.abs(u)).toFixed(2));
+      }
     };
 
     render();
-    const stop = [sx.on("change", render), sy.on("change", render)];
+    const stop = [px.on("change", render), py.on("change", render), grip.on("change", render), bx.on("change", render), by.on("change", render)];
     return () => stop.forEach((fn) => fn());
-  }, [sx, sy, maxPull, pts, cx, cy]);
+  }, [px, py, grip, bx, by, cx, cy, hw, hh]);
 
   return (
     <svg
       aria-hidden="true"
-      className="pointer-events-none absolute -z-10"
+      className="pointer-events-none absolute -z-10 overflow-visible"
       style={{ left: -PAD, top: -PAD, width: box.w + PAD * 2, height: box.h + PAD * 2 }}
     >
-      <g ref={groupRef} fill="none" stroke={stroke} strokeLinecap="round" style={{ opacity: 0 }}>
-        {pts.map((_, i) => (
-          <path key={i} ref={(n) => (pathRefs.current[i] = n)} />
+      <g ref={group} fill="none" stroke="rgba(214,222,255,0.6)" strokeLinecap="round" style={{ opacity: 0 }}>
+        {Array.from({ length: STRANDS }, (_, i) => (
+          <path key={i} ref={(n) => (paths.current[i] = n)} />
         ))}
       </g>
     </svg>

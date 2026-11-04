@@ -174,7 +174,8 @@
   left: 0;
   pointer-events: none;
   z-index: 100;
-  transform: translate(-50%, -50%);
+  /* The hand SVG places its own hotspot, so no centring transform here:
+     Framer Motion writes the element transform and would overwrite it. */
 }
 
 @media (hover: none) {
