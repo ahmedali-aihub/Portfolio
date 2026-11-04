@@ -21,8 +21,15 @@ const STRANDS = 9;
 const PAD = 560; // px of SVG bleed, so a web fired across the viewport is not clipped
 const CATCH = 0.55; // fraction of the gap the cursor gets dragged across at full grip
 const GAP = 22; // px the held hand is kept clear of the button's rim
+// The most the drawn hand is ever hauled off the real pointer. Far away the
+// pull is capped, so the web stays taut and stretchy, and the hand never ends
+// up so far from the pointer that aiming with it becomes guesswork.
+const MAX_PULL = 150;
 
-export default function PullButton({ children, className = "", radius = 320, lean = 10, ...props }) {
+// `radius` is how far from the button the web will reach. The default covers the
+// whole contact section, so wherever the pointer is in it, the nearest button
+// fires at it. The web still only exists while the pointer is inside the section.
+export default function PullButton({ children, className = "", radius = 760, lean = 10, ...props }) {
   const wrapRef = useRef(null);
   const [box, setBox] = useState(null);
   const [web, setWeb] = useState(false);
@@ -64,6 +71,7 @@ export default function PullButton({ children, className = "", radius = 320, lea
     const fine = window.matchMedia("(pointer: fine)").matches;
     if (reduced || !fine) return undefined;
     const el = wrapRef.current;
+    const section = el.closest("section");
     const slot = (window.__webPull ||= { owner: null, x: 0, y: 0, grip: 0, ux: 0, uy: 1 });
     const me = {};
 
@@ -93,6 +101,22 @@ export default function PullButton({ children, className = "", radius = 320, lea
         release();
         return;
       }
+      // Only inside the section the buttons belong to: the web must not shoot
+      // across the page while you are reading something else.
+      if (section) {
+        const s = section.getBoundingClientRect();
+        if (e.clientX < s.left || e.clientX > s.right || e.clientY < s.top || e.clientY > s.bottom) {
+          release();
+          return;
+        }
+      }
+      // Aiming at some other link or button: let go. The drawn hand is pulled
+      // off the real pointer, so a click would land away from where it looks.
+      const over = e.target instanceof Element ? e.target.closest("a, button, input, textarea, select, [role='button']") : null;
+      if (over && !over.closest("[data-pull]")) {
+        release();
+        return;
+      }
       // Claim the shared cursor slot unless a nearer button has claimed it for
       // this same pointer event. Stale claims (from an earlier move) lose.
       const stamp = e.timeStamp;
@@ -110,7 +134,11 @@ export default function PullButton({ children, className = "", radius = 320, lea
       slot.stamp = stamp;
 
       const t = 1 - dist / reach; // 0 at the edge of the field, 1 at the centre
-      const g = t * t * (3 - 2 * t); // smoothstep, so the grab bites rather than creeps
+      // Smoothstep, but saturating well before the centre: with a field this
+      // wide the grip must already be firm a few hundred px out, or the web is
+      // too faint to see from where the pointer usually is.
+      const q = Math.min(1, t * 1.8);
+      const g = q * q * (3 - 2 * q);
 
       grip.set(g);
       glow.set(Math.min(1, t * 1.5));
@@ -124,7 +152,7 @@ export default function PullButton({ children, className = "", radius = 320, lea
       // drawn hand stays exactly under the real pointer.
       const rim = 1 / Math.max(Math.abs(ux) / (r.width / 2), Math.abs(uy) / (r.height / 2));
       const stand = rim + GAP;
-      const hauled = dist <= stand ? dist : dist - (dist - stand) * CATCH * g;
+      const hauled = dist <= stand ? dist : dist - Math.min(MAX_PULL, (dist - stand) * CATCH * g);
 
       slot.x = ux * hauled - dx;
       slot.y = uy * hauled - dy;
@@ -157,7 +185,7 @@ export default function PullButton({ children, className = "", radius = 320, lea
   }, [radius, lean, px, py, grip, x, y, glow]);
 
   return (
-    <div ref={wrapRef} className="relative isolate inline-block">
+    <div ref={wrapRef} data-pull className="relative isolate inline-block">
       {box && web && <Web box={box} px={px} py={py} grip={sgrip} bx={sx} by={sy} />}
       <motion.span
         aria-hidden="true"
