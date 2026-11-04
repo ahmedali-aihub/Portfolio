@@ -72,7 +72,7 @@ export default function PullButton({ children, className = "", radius = 760, lea
     if (reduced || !fine) return undefined;
     const el = wrapRef.current;
     const section = el.closest("section");
-    const slot = (window.__webPull ||= { owner: null, x: 0, y: 0, grip: 0, ux: 0, uy: 1 });
+    const slot = (window.__webPull ||= { owner: null, x: 0, y: 0, grip: 0 });
     const me = {};
 
     const release = () => {
@@ -167,11 +167,6 @@ export default function PullButton({ children, className = "", radius = 760, lea
       slot.x = ux * hauled - dx;
       slot.y = uy * hauled - dy;
       slot.grip = g;
-      slot.ux = ux;
-      slot.uy = uy;
-      // 0 once the hand is on the button, 1 once it is held clear of it: the
-      // cursor only swings round to hang from the web while there is a web.
-      slot.near = Math.min(1, Math.max(0, (hauled - rim) / 26));
 
       // The strands end where the hand actually ends up.
       px.set(ux * hauled);
