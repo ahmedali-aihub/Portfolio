@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, ArrowUpRight, FileText, Download } from "lucide-react";
+import { MapPin, FileText, Download, Mail, Phone } from "lucide-react";
 import { profile } from "../data/content";
 import { GithubIcon, LinkedinIcon } from "./icons";
 import Reveal from "./Reveal";
 import MaskText from "./MaskText";
-import MagneticButton from "./MagneticButton";
 import PullButton from "./PullButton";
-import TiltCard from "./TiltCard";
 
-const links = [
-  { label: "GitHub", value: "ahmedali-aihub", href: profile.github, icon: GithubIcon },
-  { label: "LinkedIn", value: "ahmed-ali-aiml2006", href: profile.linkedin, icon: LinkedinIcon },
+const secondary = [
+  { label: "LinkedIn", href: profile.linkedin, icon: LinkedinIcon, external: true },
+  { label: "GitHub", href: profile.github, icon: GithubIcon, external: true },
+  { label: profile.phone, href: `tel:${profile.phone.replace(/\s/g, "")}`, icon: Phone },
+  { label: "Download PDF", href: profile.resume, icon: Download, download: "Ahmed-Ali-Resume.pdf" },
 ];
 
 const timeFormatter = new Intl.DateTimeFormat("en-IN", {
@@ -79,24 +79,12 @@ export default function Contact() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.15}>
-          <MagneticButton
-            as="a"
-            {...{ href: `tel:${profile.phone.replace(/\s/g, "")}` }}
-            className="inline-flex items-center gap-3 rounded-full bg-[var(--color-silver-bright)] px-9 py-4 font-heading text-sm font-semibold text-[var(--color-void)] mt-6"
-          >
-            Call {profile.phone}
-          </MagneticButton>
-        </Reveal>
-
-        <Reveal delay={0.18} className="mt-14 flex flex-wrap items-center justify-center gap-x-20 gap-y-8">
+        <Reveal delay={0.18} className="mt-16 flex flex-wrap items-center justify-center gap-x-20 gap-y-10">
           <PullButton
-            href={profile.linkedin}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={`mailto:${profile.email}`}
             className="rounded-full bg-[var(--color-silver-bright)] px-9 py-4 font-heading text-sm font-semibold text-[var(--color-void)]"
           >
-            <LinkedinIcon size={16} />
+            <Mail size={16} strokeWidth={1.8} />
             Let&apos;s collaborate
           </PullButton>
           <PullButton
@@ -110,36 +98,23 @@ export default function Contact() {
           </PullButton>
         </Reveal>
 
-        <Reveal delay={0.22} className="mt-6">
-          <a
-            href={profile.resume}
-            download="Ahmed-Ali-Resume.pdf"
-            data-cursor="hover"
-            className="inline-flex items-center gap-1.5 text-xs text-[var(--color-ink-faint)] transition-colors hover:text-[var(--color-ink)]"
-          >
-            <Download size={13} strokeWidth={1.8} />
-            Download PDF
-          </a>
-        </Reveal>
-
-        <Reveal delay={0.2} className="mt-20 flex flex-wrap items-center justify-center gap-4">
-          {links.map((link) => (
-            <TiltCard
-              key={link.label}
-              href={link.href}
-              external={link.href.startsWith("http")}
-              className="justify-center rounded-2xl border border-[var(--color-line)] bg-[var(--color-surface)] px-6 py-4 min-w-[220px] transition-colors duration-300 hover:border-[var(--color-silver-dim)]"
-            >
-              <link.icon className="text-[var(--color-ink-faint)] shrink-0 transition-colors group-hover:text-[var(--color-ink)]" size={16} />
-              <span className="text-sm text-[var(--color-ink-dim)] transition-colors group-hover:text-[var(--color-ink)]">
-                {link.value}
-              </span>
-              <ArrowUpRight
-                size={14}
-                className="text-[var(--color-ink-faint)] opacity-0 -translate-y-0.5 translate-x-0.5 group-hover:opacity-100 group-hover:translate-y-0 group-hover:translate-x-0 transition-all duration-300 shrink-0"
-              />
-            </TiltCard>
-          ))}
+        <Reveal delay={0.24} className="mt-24">
+          <ul className="flex flex-wrap items-center justify-center gap-x-8 gap-y-3 text-sm text-[var(--color-ink-faint)]">
+            {secondary.map((item) => (
+              <li key={item.label}>
+                <a
+                  href={item.href}
+                  data-cursor="hover"
+                  {...(item.external ? { target: "_blank", rel: "noopener noreferrer" } : {})}
+                  {...(item.download ? { download: item.download } : {})}
+                  className="group inline-flex items-center gap-2 transition-colors hover:text-[var(--color-ink)]"
+                >
+                  <item.icon size={15} className="shrink-0" />
+                  {item.label}
+                </a>
+              </li>
+            ))}
+          </ul>
         </Reveal>
       </div>
     </section>

@@ -6,6 +6,7 @@ export const profile = {
     "I build systems where language models don't just talk — they retrieve, reason, and act.",
   location: "Hyderabad, India",
   phone: "+91 90001 89973",
+  email: "theahmedalii82@gmail.com",
   github: "https://github.com/ahmedali-aihub",
   linkedin: "https://www.linkedin.com/in/ahmed-ali-aiml2006/",
   resume: "/Ahmed-Ali-Resume.pdf",
