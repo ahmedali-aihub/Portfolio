@@ -90,10 +90,20 @@ export default function PullButton({ children, className = "", radius = 760, lea
     // Lets a nearer button make this one let go when it takes the cursor.
     me.release = release;
 
-    const onMove = (e) => {
+    // The pointer's last known position. `pointermove` does not fire when the
+    // page scrolls under a still pointer, yet the pointer's place relative to
+    // the buttons changes just the same, so scrolling has to re-run the update.
+    // Without that, scrolling away from the section left the hand pulled off the
+    // pointer, and tilted toward buttons that were no longer on screen.
+    const last = { x: null, y: null };
+
+    // `stamp` identifies the event, so two buttons handling the same one can
+    // tell whose claim is current; `getTarget` is lazy because the hit test is
+    // only worth doing once the cheaper checks have passed.
+    const update = (cx, cy, stamp, getTarget) => {
       const r = el.getBoundingClientRect();
-      const dx = e.clientX - (r.left + r.width / 2);
-      const dy = e.clientY - (r.top + r.height / 2);
+      const dx = cx - (r.left + r.width / 2);
+      const dy = cy - (r.top + r.height / 2);
       const dist = Math.hypot(dx, dy);
       const reach = radius + r.width / 2;
 
@@ -105,21 +115,21 @@ export default function PullButton({ children, className = "", radius = 760, lea
       // across the page while you are reading something else.
       if (section) {
         const s = section.getBoundingClientRect();
-        if (e.clientX < s.left || e.clientX > s.right || e.clientY < s.top || e.clientY > s.bottom) {
+        if (cx < s.left || cx > s.right || cy < s.top || cy > s.bottom) {
           release();
           return;
         }
       }
       // Aiming at some other link or button: let go. The drawn hand is pulled
       // off the real pointer, so a click would land away from where it looks.
-      const over = e.target instanceof Element ? e.target.closest("a, button, input, textarea, select, [role='button']") : null;
+      const hit = getTarget();
+      const over = hit instanceof Element ? hit.closest("a, button, input, textarea, select, [role='button']") : null;
       if (over && !over.closest("[data-pull]")) {
         release();
         return;
       }
       // Claim the shared cursor slot unless a nearer button has claimed it for
-      // this same pointer event. Stale claims (from an earlier move) lose.
-      const stamp = e.timeStamp;
+      // this same event. Stale claims (from an earlier event) lose.
       if (slot.owner && slot.owner !== me) {
         if (slot.stamp === stamp && slot.dist <= dist) {
           release();
@@ -173,13 +183,31 @@ export default function PullButton({ children, className = "", radius = 760, lea
       y.set(dy * k);
     };
 
+    const onMove = (e) => {
+      last.x = e.clientX;
+      last.y = e.clientY;
+      update(e.clientX, e.clientY, e.timeStamp, () => e.target);
+    };
+    const onScroll = (e) => {
+      if (last.x === null) return; // the pointer has not been seen yet
+      update(last.x, last.y, e.timeStamp, () => document.elementFromPoint(last.x, last.y));
+    };
+    // Forget the pointer when it leaves, so a later scroll cannot revive a grab.
+    const onLeave = () => {
+      last.x = null;
+      last.y = null;
+      release();
+    };
+
     window.addEventListener("pointermove", onMove);
-    document.addEventListener("pointerleave", release);
-    window.addEventListener("blur", release);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.addEventListener("pointerleave", onLeave);
+    window.addEventListener("blur", onLeave);
     return () => {
       window.removeEventListener("pointermove", onMove);
-      document.removeEventListener("pointerleave", release);
-      window.removeEventListener("blur", release);
+      window.removeEventListener("scroll", onScroll);
+      document.removeEventListener("pointerleave", onLeave);
+      window.removeEventListener("blur", onLeave);
       release();
     };
   }, [radius, lean, px, py, grip, x, y, glow]);
