@@ -6,12 +6,14 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
  *
  * It follows the mouse, but PullButton can grab it: that component writes an
  * offset into `window.__webPull`, and the hand is drawn at mouse + offset, so
- * a nearby button visibly hauls it in. The hand dangles from the web like
- * something on a rope: it stays hanging fingers-down and only swings a little
- * toward the side the web is pulling from. While gripped the fingers hook.
+ * a nearby button visibly hauls it in. While gripped the fingers hook.
+ *
+ * The hand never rotates. It always hangs upright, fingers down, whatever the
+ * web is doing: tilting it to follow the web made it look wrong from most
+ * directions, so the web moves and the hand stays put.
  *
  * The pointer's hotspot is the top of the wrist, which is also where the web
- * ties on, and the hand swings about that point.
+ * ties on.
  */
 
 export default function CustomCursor() {
@@ -23,9 +25,6 @@ export default function CustomCursor() {
   const y = useMotionValue(-200);
   const sx = useSpring(x, { stiffness: 900, damping: 42, mass: 0.35 });
   const sy = useSpring(y, { stiffness: 900, damping: 42, mass: 0.35 });
-  const tilt = useMotionValue(0);
-  // Underdamped on purpose: a hand on a rope overshoots and settles.
-  const stilt = useSpring(tilt, { stiffness: 140, damping: 11 });
 
   const mouse = useRef({ x: -200, y: -200 });
 
@@ -45,20 +44,6 @@ export default function CustomCursor() {
       const g = held ? slot.grip : 0;
       x.set(mouse.current.x + (held ? slot.x : 0));
       y.set(mouse.current.y + (held ? slot.y : 0));
-
-      // Hang the hand like a pendulum. Gravity pulls it straight down, the web
-      // pulls it away from the button along (ux, uy), and it settles between
-      // the two, so its fingers always point down-ish and never sideways or up.
-      // Turning "down" onto direction (dx, dy) is atan2(-dx, dy); the swing is
-      // capped, and eased in with the grip so a weak pull only nudges it.
-      let deg = 0;
-      if (held && g > 0.02) {
-        const dx = slot.ux * 0.8;
-        const dy = slot.uy * 0.8 + 1;
-        const theta = (Math.atan2(-dx, dy) * 180) / Math.PI;
-        deg = Math.max(-55, Math.min(55, theta)) * Math.min(1, g * 2) * (slot.near ?? 1);
-      }
-      tilt.set(deg);
       setGrip((prev) => (Math.abs(prev - g) > 0.02 ? g : prev));
       raf = requestAnimationFrame(tick);
     };
@@ -71,15 +56,15 @@ export default function CustomCursor() {
       window.removeEventListener("mousemove", move);
       window.removeEventListener("mouseover", over);
     };
-  }, [x, y, tilt]);
+  }, [x, y]);
 
   const active = grip > 0.05;
 
   return (
     <motion.div
       className="cursor-dot"
-      // Swing and scale about the cursor point (the wrist), not the box centre.
-      style={{ x: sx, y: sy, rotate: stilt, originX: 0, originY: 0 }}
+      // Scale about the cursor point (the wrist), not the box centre. No rotate.
+      style={{ x: sx, y: sy, originX: 0, originY: 0 }}
       animate={{ opacity: visible ? 1 : 0, scale: active ? 1 : hovering ? 0.92 : 0.82 }}
       transition={{ duration: 0.25 }}
     >
