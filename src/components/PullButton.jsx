@@ -20,7 +20,10 @@ import { motion, useMotionValue, useMotionValueEvent, useSpring, useTransform } 
 const STRANDS = 9;
 const PAD = 560; // px of SVG bleed, so a web fired across the viewport is not clipped
 const CATCH = 0.55; // fraction of the gap the cursor gets dragged across at full grip
-const GAP = 22; // px the held hand is kept clear of the button's rim
+const GAP = 26; // px the held fingertip is kept clear of the button's rim
+// The hand stands this far below its fingertip (the click point). When it is held
+// above a button, that much more room is needed or its body hangs over the label.
+const HAND_LEN = 46;
 // The most the drawn hand is ever hauled off the real pointer. Far away the
 // pull is capped, so the web stays taut and stretchy, and the hand never ends
 // up so far from the pointer that aiming with it becomes guesswork.
@@ -161,7 +164,7 @@ export default function PullButton({ children, className = "", radius = 760, lea
       // pointer is already inside that ring there is nothing to haul, so the
       // drawn hand stays exactly under the real pointer.
       const rim = 1 / Math.max(Math.abs(ux) / (r.width / 2), Math.abs(uy) / (r.height / 2));
-      const stand = rim + GAP;
+      const stand = rim + GAP + HAND_LEN * Math.max(0, -uy);
       const hauled = dist <= stand ? dist : dist - Math.min(MAX_PULL, (dist - stand) * CATCH * g);
 
       slot.x = ux * hauled - dx;
