@@ -37,11 +37,15 @@ export default function PullButton({ children, className = "", radius = 760, lea
   const [box, setBox] = useState(null);
   const [web, setWeb] = useState(false);
 
-  // Where the hand's wrist is being held, relative to the button's resting
-  // centre, plus the grip strength 0..1.
+  // Where the fingertip is being held, relative to the button's resting centre.
   const px = useMotionValue(0);
   const py = useMotionValue(0);
-  const grip = useMotionValue(0);
+  // How far the web has been shot out: 0 is folded against the button, 1 is
+  // reaching the fingertip. It is a spring, and deliberately underdamped, so the
+  // strands overshoot the hand a little when fired and whip back past the button
+  // when released, which is most of what makes the web feel elastic.
+  const extent = useMotionValue(0);
+  const sextent = useSpring(extent, { stiffness: 150, damping: 11, mass: 0.9 });
 
   const x = useMotionValue(0);
   const y = useMotionValue(0);
@@ -51,11 +55,10 @@ export default function PullButton({ children, className = "", radius = 760, lea
   const sx = useSpring(x, spring);
   const sy = useSpring(y, spring);
   const sg = useSpring(glow, { stiffness: 120, damping: 20 });
-  const sgrip = useSpring(grip, { stiffness: 200, damping: 24 });
   const rotate = useTransform(sx, [-lean, lean], [-3, 3]);
 
-  // Keep the web mounted while it is visibly fading out, not just while gripped.
-  useMotionValueEvent(sgrip, "change", (v) => setWeb(v > 0.01));
+  // Keep the web mounted until the spring has settled, so the snap-back is seen.
+  useMotionValueEvent(sextent, "change", (v) => setWeb(Math.abs(v) > 0.004));
 
   useEffect(() => {
     const el = wrapRef.current;
@@ -79,7 +82,7 @@ export default function PullButton({ children, className = "", radius = 760, lea
     const me = {};
 
     const release = () => {
-      grip.set(0);
+      extent.set(0);
       x.set(0);
       y.set(0);
       glow.set(0);
@@ -153,7 +156,7 @@ export default function PullButton({ children, className = "", radius = 760, lea
       const q = Math.min(1, t * 1.8);
       const g = q * q * (3 - 2 * q);
 
-      grip.set(g);
+      extent.set(1);
       glow.set(Math.min(1, t * 1.5));
 
       const ux = dx / (dist || 1);
@@ -208,11 +211,11 @@ export default function PullButton({ children, className = "", radius = 760, lea
       window.removeEventListener("blur", onLeave);
       release();
     };
-  }, [radius, lean, px, py, grip, x, y, glow]);
+  }, [radius, lean, px, py, extent, x, y, glow]);
 
   return (
     <div ref={wrapRef} data-pull className="relative isolate inline-block">
-      {box && web && <Web box={box} px={px} py={py} grip={sgrip} bx={sx} by={sy} />}
+      {box && web && <Web box={box} px={px} py={py} reach={sextent} bx={sx} by={sy} />}
       <motion.span
         aria-hidden="true"
         style={{ x: sx, y: sy, opacity: sg }}
@@ -232,28 +235,47 @@ export default function PullButton({ children, className = "", radius = 760, lea
   );
 }
 
-// A point on a quadratic Bézier, t in 0..1.
-const bez = (a, m, b, t) => {
-  const s = 1 - t;
-  return s * s * a + 2 * s * t * m + t * t * b;
-};
+const SEG = 13; // points per strand
+const STEP = 1 / 60; // the simulation advances in fixed 60Hz steps, whatever the display rate
+const GRAVITY = 0.34; // px per step², applied while the web is out
+const DAMP = 0.975; // velocity kept per step: low enough to settle, high enough to whip
+const SLACK = 1.045; // rope length as a multiple of the straight distance: this is the sag
+const PASSES = 4; // constraint passes per step: more is stiffer
+const RUNG_AT = [4, 8]; // which points the cross-threads tie neighbouring strands at
 
-const RUNGS = [0.36, 0.68]; // where cross-threads tie neighbouring strands together
+// A few beads of glue strung on particular strands: [strand, point, radius].
+const BEADS = [
+  [1, 5, 1.9],
+  [3, 8, 1.5],
+  [5, 4, 2.0],
+  [7, 7, 1.6],
+];
 
 /*
- * The web: a net of silk from the button's near rim to the held wrist.
+ * The web: a net of elastic silk from the button's near rim to the fingertip.
  *
- * Each strand leaves from its own spot on the rim and gathers into a knot at
- * the wrist. They droop under gravity, sway when the hand is moving, and get
- * thinner the further they are stretched, like glue pulled into a thread. Short
- * cross-threads tie neighbouring strands together so it reads as a net, not as
- * a fan of parallel lines. Redrawn every frame while mounted, written straight
- * to the DOM so React never re-renders for it.
+ * Each strand is a rope, a chain of points under Verlet integration, pinned to
+ * the rim at one end and to the fingertip at the other. Only the ends are
+ * driven, everything between them is physics, so the rest follows from that:
+ *
+ * - The far end is shot out on the `reach` spring, so the strands fly out and
+ *   overshoot the hand, then settle. On release they whip back past the button.
+ * - A rope has a length, which follows the distance to the hand with a lag.
+ *   Move away quickly and the rope is briefly short, so it goes taut and thin,
+ *   like glue pulled into a thread; stop, and it relaxes into a droop.
+ * - Gravity makes the slack sag, and moving the hand sets the whole net swinging.
+ *
+ * Short cross-threads, beads of glue and sticky roots on the rim make it read as
+ * a net rather than as a fan of lines. Redrawn every frame while mounted,
+ * written straight to the DOM so React never re-renders for it.
  */
-function Web({ box, px, py, grip, bx, by }) {
+function Web({ box, px, py, reach, bx, by }) {
+  const glowP = useRef([]);
   const body = useRef([]);
   const shine = useRef([]);
   const rungs = useRef([]);
+  const beads = useRef([]);
+  const roots = useRef([]);
   const group = useRef(null);
   const knot = useRef(null);
   const hw = box.w / 2;
@@ -262,17 +284,85 @@ function Web({ box, px, py, grip, bx, by }) {
   const cy = hh + PAD;
 
   useEffect(() => {
-    const phase = Array.from({ length: STRANDS }, (_, i) => i * 1.9 + 0.6);
-    const pts = Array.from({ length: STRANDS }, () => ({ ax: 0, ay: 0, mx: 0, my: 0, tx: 0, ty: 0 }));
-    let lastX = null;
-    let lastY = null;
-    let energy = 0;
+    const strands = Array.from({ length: STRANDS }, () => ({
+      pts: Array.from({ length: SEG }, () => ({ x: 0, y: 0, px: 0, py: 0 })),
+      rope: 12, // starts short, so a freshly fired strand is taut and thin
+      ready: false,
+      ax: 0, ay: 0, // where it is pinned to the rim
+      tx: 0, ty: 0, // where it would reach at full extension
+    }));
     let raf = 0;
+    let prev = 0;
+    let acc = 0;
+
+    // One fixed step of every rope.
+    const simulate = (ext, t) => {
+      for (let i = 0; i < STRANDS; i++) {
+        const s = strands[i];
+        const p = s.pts;
+        const last = p[SEG - 1];
+        if (!s.ready) {
+          for (const q of p) {
+            q.x = q.px = s.ax;
+            q.y = q.py = s.ay;
+          }
+          s.ready = true;
+        }
+
+        // The driven ends.
+        const ex = s.ax + (s.tx - s.ax) * ext;
+        const ey = s.ay + (s.ty - s.ay) * ext;
+        p[0].x = p[0].px = s.ax;
+        p[0].y = p[0].py = s.ay;
+        last.x = last.px = ex;
+        last.y = last.py = ey;
+
+        // The rope's length lags the distance to the hand, which is what makes
+        // it stretch under a quick move and sag once it stops.
+        s.rope += (Math.hypot(ex - s.ax, ey - s.ay) * SLACK - s.rope) * 0.1;
+
+        // Verlet integration of the free points.
+        for (let k = 1; k < SEG - 1; k++) {
+          const q = p[k];
+          const vx = (q.x - q.px) * DAMP;
+          const vy = (q.y - q.py) * DAMP;
+          q.px = q.x;
+          q.py = q.y;
+          // A slight breeze, out of step along each rope, so it is never quite still.
+          q.x += vx + Math.sin(t * 2.3 + i * 1.3 + k * 0.6) * 0.05 * ext;
+          q.y += vy + GRAVITY * ext;
+        }
+
+        // Hold the segment lengths. The ends are pinned, so they do not move.
+        const rest = s.rope / (SEG - 1);
+        for (let pass = 0; pass < PASSES; pass++) {
+          for (let k = 0; k < SEG - 1; k++) {
+            const a = p[k];
+            const b = p[k + 1];
+            const dx = b.x - a.x;
+            const dy = b.y - a.y;
+            const d = Math.hypot(dx, dy) || 0.0001;
+            const diff = (d - rest) / d;
+            const wa = k === 0 ? 0 : 1;
+            const wb = k + 1 === SEG - 1 ? 0 : 1;
+            const sum = wa + wb;
+            if (!sum) continue;
+            a.x += dx * diff * (wa / sum);
+            a.y += dy * diff * (wa / sum);
+            b.x -= dx * diff * (wb / sum);
+            b.y -= dy * diff * (wb / sum);
+          }
+        }
+      }
+    };
 
     const frame = (now) => {
       raf = requestAnimationFrame(frame);
+      const dt = prev ? Math.min(0.05, (now - prev) / 1000) : STEP;
+      prev = now;
+      acc += dt;
       const t = now / 1000;
-      const g = grip.get();
+
       const dx = px.get();
       const dy = py.get();
       const len = Math.hypot(dx, dy) || 1;
@@ -280,85 +370,111 @@ function Web({ box, px, py, grip, bx, by }) {
       const uy = dy / len;
       const perpx = -uy;
       const perpy = ux;
-
-      // How agitated the web is: the held point's recent speed, decaying, so a
-      // moving hand whips the strands and a still one only sways.
-      if (lastX !== null) energy = Math.min(1, energy * 0.92 + Math.hypot(dx - lastX, dy - lastY) * 0.05);
-      lastX = dx;
-      lastY = dy;
-      const slack = 0.2 + 0.8 * energy;
-
-      // Fade the web out as the hand arrives at the button, rather than
-      // drawing strands that run backwards through it.
       const rim = 1 / Math.max(Math.abs(ux) / hw, Math.abs(uy) / hh);
-      const near = Math.min(1, Math.max(0, (len - rim) / 26));
-      if (group.current) group.current.style.opacity = String(Math.min(1, g * 1.4) * near);
-
-      const rcx = cx + bx.get();
-      const rcy = cy + by.get();
-      const tipx = cx + dx;
-      const tipy = cy + dy;
-      const rimx = rcx + ux * rim * 0.97;
-      const rimy = rcy + uy * rim * 0.97;
-      const span = Math.max(1, Math.hypot(tipx - rimx, tipy - rimy));
+      const rimx = cx + bx.get() + ux * rim * 0.97;
+      const rimy = cy + by.get() + uy * rim * 0.97;
       const spread = Math.min(hh, hw) * 1.25;
-      // Thinner the further it is stretched, but never down to a hairline:
-      // this is meant to read as thick silk, not as a drawn line.
-      const width = Math.max(1.8, Math.min(3.8, 4.4 - span / 110));
 
       for (let i = 0; i < STRANDS; i++) {
         const u = (i / (STRANDS - 1) - 0.5) * 2; // -1..1 across the bundle
-        const p = pts[i];
-        p.ax = rimx + perpx * u * spread;
-        p.ay = rimy + perpy * u * spread;
-        p.tx = tipx + perpx * u * 2.4;
-        p.ty = tipy + perpy * u * 2.4;
+        const s = strands[i];
+        s.ax = rimx + perpx * u * spread;
+        s.ay = rimy + perpy * u * spread;
+        // All the strands gather on the fingertip, a couple of px apart.
+        s.tx = cx + dx + perpx * u * 2.4;
+        s.ty = cy + dy + perpy * u * 2.4;
+      }
 
-        const sway = Math.sin(t * 4.2 + phase[i]) * 7 * slack * (0.45 + Math.abs(u) * 0.55);
-        // Each strand bows a different way, so they cross over one another on
-        // the way to the wrist like twisted silk rather than running parallel.
-        const bow = Math.sin(i * 1.7 + 0.5) * span * 0.075 + u * span * 0.03 + sway;
-        const droop = span * 0.06 * (1 - g * 0.35); // gravity
-        p.mx = (p.ax + p.tx) / 2 + perpx * bow;
-        p.my = (p.ay + p.ty) / 2 + perpy * bow + droop;
+      // Overshoot is allowed past the hand, but not behind the button.
+      const ext = Math.max(0, Math.min(1.18, reach.get()));
+      let steps = 0;
+      while (acc >= STEP && steps < 4) {
+        acc -= STEP;
+        steps++;
+        simulate(ext, t);
+      }
+      if (steps === 4) acc = 0; // fell far behind (a hidden tab): do not catch up
 
-        const d = `M${p.ax.toFixed(1)},${p.ay.toFixed(1)} Q${p.mx.toFixed(1)},${p.my.toFixed(1)} ${p.tx.toFixed(1)},${p.ty.toFixed(1)}`;
-        const w = width * (1 - 0.28 * Math.abs(u));
+      // Fade the web out as the hand arrives at the button, rather than
+      // drawing strands that run backwards through it.
+      const near = Math.min(1, Math.max(0, (len - rim) / 26));
+      if (group.current) group.current.style.opacity = String(Math.min(1, ext * 1.6) * near);
+
+      // --- draw ---
+      const baseW = Math.max(2.0, Math.min(3.6, 3.9 - len / 140));
+      for (let i = 0; i < STRANDS; i++) {
+        const u = (i / (STRANDS - 1) - 0.5) * 2;
+        const s = strands[i];
+        const p = s.pts;
+        let d = `M${p[0].x.toFixed(1)},${p[0].y.toFixed(1)}`;
+        for (let k = 1; k < SEG - 1; k++) {
+          const mx = (p[k].x + p[k + 1].x) / 2;
+          const my = (p[k].y + p[k + 1].y) / 2;
+          d += ` Q${p[k].x.toFixed(1)},${p[k].y.toFixed(1)} ${mx.toFixed(1)},${my.toFixed(1)}`;
+        }
+        d += ` L${p[SEG - 1].x.toFixed(1)},${p[SEG - 1].y.toFixed(1)}`;
+
+        // Stretched past its length it thins; slack leaves it full width.
+        const span = Math.hypot(p[SEG - 1].x - p[0].x, p[SEG - 1].y - p[0].y);
+        const stretch = Math.max(0, span / Math.max(1, s.rope) - 1);
+        const w = Math.max(0.9, (baseW * (1 - 0.28 * Math.abs(u))) / (1 + stretch * 1.7));
+
         const b = body.current[i];
-        const s = shine.current[i];
+        const g = glowP.current[i];
+        const h = shine.current[i];
         if (b) {
           b.setAttribute("d", d);
           b.setAttribute("stroke-width", w.toFixed(2));
         }
-        if (s) s.setAttribute("d", d);
-      }
+        if (g) {
+          g.setAttribute("d", d);
+          g.setAttribute("stroke-width", (w * 3.4).toFixed(2));
+        }
+        if (h) h.setAttribute("d", d);
 
-      // Cross-threads between neighbours, slung a little behind the bundle.
-      let n = 0;
-      for (let i = 0; i < STRANDS - 1; i++) {
-        const a = pts[i];
-        const b = pts[i + 1];
-        for (const tt of RUNGS) {
-          const node = rungs.current[n++];
-          if (!node) continue;
-          const x1 = bez(a.ax, a.mx, a.tx, tt);
-          const y1 = bez(a.ay, a.my, a.ty, tt);
-          const x2 = bez(b.ax, b.mx, b.tx, tt);
-          const y2 = bez(b.ay, b.my, b.ty, tt);
-          const sag = 3 + span * 0.012;
-          node.setAttribute("d", `M${x1.toFixed(1)},${y1.toFixed(1)} Q${((x1 + x2) / 2 + ux * sag).toFixed(1)},${((y1 + y2) / 2 + uy * sag + 1.5).toFixed(1)} ${x2.toFixed(1)},${y2.toFixed(1)}`);
+        const root = roots.current[i];
+        if (root) {
+          root.setAttribute("cx", p[0].x.toFixed(1));
+          root.setAttribute("cy", p[0].y.toFixed(1));
         }
       }
 
+      // Cross-threads: tied between neighbouring ropes, with a little sag.
+      let n = 0;
+      for (let i = 0; i < STRANDS - 1; i++) {
+        for (const k of RUNG_AT) {
+          const node = rungs.current[n++];
+          if (!node) continue;
+          const a = strands[i].pts[k];
+          const b = strands[i + 1].pts[k];
+          node.setAttribute(
+            "d",
+            `M${a.x.toFixed(1)},${a.y.toFixed(1)} Q${((a.x + b.x) / 2).toFixed(1)},${((a.y + b.y) / 2 + 2.5).toFixed(1)} ${b.x.toFixed(1)},${b.y.toFixed(1)}`,
+          );
+        }
+      }
+
+      // Beads of glue riding on their ropes.
+      BEADS.forEach(([si, k], j) => {
+        const node = beads.current[j];
+        const q = strands[si].pts[k];
+        if (node) {
+          node.setAttribute("cx", q.x.toFixed(1));
+          node.setAttribute("cy", q.y.toFixed(1));
+        }
+      });
+
+      // The knot where the bundle meets the fingertip.
       if (knot.current) {
-        knot.current.setAttribute("cx", tipx.toFixed(1));
-        knot.current.setAttribute("cy", tipy.toFixed(1));
+        const q = strands[(STRANDS - 1) / 2].pts[SEG - 1];
+        knot.current.setAttribute("cx", q.x.toFixed(1));
+        knot.current.setAttribute("cy", q.y.toFixed(1));
       }
     };
 
     raf = requestAnimationFrame(frame);
     return () => cancelAnimationFrame(raf);
-  }, [px, py, grip, bx, by, cx, cy, hw, hh]);
+  }, [px, py, reach, bx, by, cx, cy, hw, hh]);
 
   return (
     <svg
@@ -366,23 +482,41 @@ function Web({ box, px, py, grip, bx, by }) {
       className="pointer-events-none absolute -z-10 overflow-visible"
       style={{ left: -PAD, top: -PAD, width: box.w + PAD * 2, height: box.h + PAD * 2 }}
     >
-      <g ref={group} fill="none" strokeLinecap="round" style={{ opacity: 0 }}>
+      <g ref={group} fill="none" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0 }}>
+        {/* a soft glow under everything */}
+        <g stroke="rgba(150,172,255,0.11)">
+          {Array.from({ length: STRANDS }, (_, i) => (
+            <path key={i} ref={(n) => (glowP.current[i] = n)} />
+          ))}
+        </g>
         <g stroke="rgba(190,202,235,0.42)" strokeWidth="0.95">
-          {Array.from({ length: (STRANDS - 1) * RUNGS.length }, (_, i) => (
+          {Array.from({ length: (STRANDS - 1) * RUNG_AT.length }, (_, i) => (
             <path key={i} ref={(n) => (rungs.current[i] = n)} />
           ))}
         </g>
-        <g stroke="rgba(172,186,226,0.82)">
+        <g stroke="rgba(172,186,226,0.86)">
           {Array.from({ length: STRANDS }, (_, i) => (
             <path key={i} ref={(n) => (body.current[i] = n)} />
           ))}
         </g>
-        <g stroke="rgba(248,250,255,0.7)" strokeWidth="0.8">
+        {/* a thin highlight, nudged up and left of each strand, for a glossy edge */}
+        <g stroke="rgba(250,252,255,0.72)" strokeWidth="0.8" transform="translate(-0.5 -0.7)">
           {Array.from({ length: STRANDS }, (_, i) => (
             <path key={i} ref={(n) => (shine.current[i] = n)} />
           ))}
         </g>
-        <circle ref={knot} r="3.4" fill="rgba(206,216,244,0.85)" stroke="none" />
+        <g fill="rgba(238,244,255,0.85)" stroke="none">
+          {BEADS.map(([, , r], j) => (
+            <circle key={j} r={r} ref={(n) => (beads.current[j] = n)} />
+          ))}
+        </g>
+        {/* sticky roots where each strand is stuck to the button */}
+        <g fill="rgba(196,208,240,0.78)" stroke="none">
+          {Array.from({ length: STRANDS }, (_, i) => (
+            <circle key={i} r={2.2 + 0.7 * (1 - Math.abs((i / (STRANDS - 1) - 0.5) * 2))} ref={(n) => (roots.current[i] = n)} />
+          ))}
+        </g>
+        <circle ref={knot} r="3.4" fill="rgba(214,224,248,0.9)" stroke="none" />
       </g>
     </svg>
   );
