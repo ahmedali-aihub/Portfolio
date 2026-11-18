@@ -1,5 +1,5 @@
 """
-Deterministic overrides for a small number of high-value, unambiguous
+!Deterministic overrides for a small number of high-value, unambiguous
 intents — currently just "how do I contact Ahmed".
 
 Free-tier LLMs are inconsistent about reliably surfacing contact details
