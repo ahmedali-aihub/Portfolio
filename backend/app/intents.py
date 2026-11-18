@@ -1,6 +1,6 @@
 """
 Deterministic overrides for a small number of high-value, unambiguous
-intents — currently just "how do I contact Ahmed".
+intents — currently just "how do I contact Ahmed"..
 
 Free-tier LLMs are inconsistent about reliably surfacing contact details
 even when the exact phone/GitHub/LinkedIn are handed to them in context
