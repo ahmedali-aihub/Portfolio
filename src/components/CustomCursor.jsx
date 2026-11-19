@@ -5,14 +5,13 @@ import { motion, useMotionValue, useSpring } from "framer-motion";
  * The cursor, after the reference video.
  *
  * At rest it is an ordinary black arrow. When a PullButton's web has hold of it,
- * it becomes a line-drawn fist hanging off the end of the strands: PullButton
- * writes an offset into `window.__webPull` and the cursor is drawn at
- * mouse + offset, so the button visibly hauls it in, and the web writes the
- * direction its strands are running in, which the fist tilts to follow, like
- * something dangling from a rope.
+ * it becomes the hand: PullButton writes an offset into `window.__webPull` and
+ * the cursor is drawn at mouse + offset, so the button visibly hauls it in.
  *
- * Both are anchored at their hotspot: the arrow's tip, and the top of the fist's
- * wrist, which is where the strands tie on.
+ * The hand is fixed. It stands upright with its fingers up and never rotates,
+ * tilts or curls, however the web pulls (that was an explicit choice: a hand that
+ * turned to hang from the strands read as rotated and wrong). The click point is
+ * the tip of the middle finger, which is also where the strands tie on.
  */
 
 export default function CustomCursor() {
@@ -23,9 +22,6 @@ export default function CustomCursor() {
   const y = useMotionValue(-200);
   const sx = useSpring(x, { stiffness: 900, damping: 42, mass: 0.35 });
   const sy = useSpring(y, { stiffness: 900, damping: 42, mass: 0.35 });
-  const tilt = useMotionValue(0);
-  // Underdamped: a hand on a rope overshoots a little and settles.
-  const stilt = useSpring(tilt, { stiffness: 120, damping: 11 });
 
   const mouse = useRef({ x: -200, y: -200 });
 
@@ -39,27 +35,13 @@ export default function CustomCursor() {
     const tick = () => {
       const slot = window.__webPull;
       const held = Boolean(slot?.owner);
-      const off = held ? Math.hypot(slot.x, slot.y) : 0;
       x.set(mouse.current.x + (held ? slot.x : 0));
       y.set(mouse.current.y + (held ? slot.y : 0));
 
-      // The fist only shows while it is really being pulled. With the pointer
-      // already on the button there is no web to hang from, so it is the arrow.
-      const isPulled = off > 5;
+      // The hand only shows while it is really being pulled. With the pointer
+      // already on the button there is no web, so it is the arrow.
+      const isPulled = held && Math.hypot(slot.x, slot.y) > 5;
       setPulled((prev) => (prev === isPulled ? prev : isPulled));
-
-      // Hang it like a pendulum: gravity pulls straight down, the strands pull
-      // along (dir.x, dir.y), and it settles between the two, so the fist always
-      // hangs down-ish and never sideways. Turning "down" onto (dx, dy) is
-      // atan2(-dx, dy), capped, and eased in with how far it is being pulled.
-      let deg = 0;
-      if (isPulled && slot.dir) {
-        const dx = slot.dir.x * 0.85;
-        const dy = slot.dir.y * 0.85 + 1;
-        const theta = (Math.atan2(-dx, dy) * 180) / Math.PI;
-        deg = Math.max(-60, Math.min(60, theta)) * Math.min(1, off / 30);
-      }
-      tilt.set(deg);
       raf = requestAnimationFrame(tick);
     };
     raf = requestAnimationFrame(tick);
@@ -69,22 +51,18 @@ export default function CustomCursor() {
       cancelAnimationFrame(raf);
       window.removeEventListener("mousemove", move);
     };
-  }, [x, y, tilt]);
+  }, [x, y]);
 
   return (
     <motion.div
       className="cursor-dot"
+      // Position only: no rotate.
       style={{ x: sx, y: sy }}
       animate={{ opacity: visible ? 1 : 0 }}
       transition={{ duration: 0.25 }}
     >
-      {/* Rotate about the wrist, which sits on the cursor point. */}
-      <motion.div
-        style={{ rotate: stilt, originX: 0, originY: 0 }}
-        animate={{ opacity: pulled ? 1 : 0 }}
-        transition={{ duration: 0.15 }}
-      >
-        <Fist />
+      <motion.div animate={{ opacity: pulled ? 1 : 0 }} transition={{ duration: 0.15 }}>
+        <RoboHand />
       </motion.div>
       <motion.div animate={{ opacity: pulled ? 0 : 1 }} transition={{ duration: 0.15 }}>
         <Arrow />
@@ -109,55 +87,79 @@ function Arrow() {
 }
 
 /*
- * A line-drawn fist, seen from the back, hanging by its wrist: white paper-fill,
- * ink outline drawn twice with a slight offset so it looks pencilled rather
- * than vector. A strapped wrist at the top, a back of the hand with tendon
- * marks, four folded fingers at the bottom and the thumb down one side. Fixed
- * pose; it does not animate beyond swinging with the strands.
+ * A pale, glove-like hand in dark ink. Tall finger bars sit shoulder to shoulder
+ * with dark dividers between them, each ends in a short rounded tip past a joint
+ * line, a long thumb angles out to one side, and a strapped cuff sits at the
+ * wrist. Light fill with dark linework keeps it readable at cursor size, and the
+ * dividers keep the fingers apart.
  *
- * The box is 44 x 54 with the top of the wrist at (22, 1).
+ * It is drawn fingers-down and flipped vertically when placed so the fingers
+ * point up. A flip, not a half turn, so the thumb stays on the left. The box is
+ * 44 x 52.
  */
 
-const PAPER = "#f6f3ec";
-const INK = "#121216";
+const FILL = "#e6eaf4";
+const LINE = "#0d1018";
+const BOX_H = 52;
+const KNUCKLE_Y = 23; // fingers root here, under the palm, which covers the roots
 
-function FistShapes({ fill, stroke, width }) {
+// Segment lengths for each finger, root to tip, and which way it leans (toward
+// the middle of the hand) so the fingers are relaxed rather than ruler-straight.
+const FINGERS = [
+  { x: 12.2, segs: [12.2, 8.6], lean: -1 },
+  { x: 18.6, segs: [13.4, 9.4], lean: -1 },
+  { x: 25.0, segs: [12.8, 9.0], lean: 1 },
+  { x: 31.4, segs: [10.6, 7.6], lean: 1 },
+];
+
+// Where the middle fingertip lands in the placed (flipped) box: the click point.
+const HOT_X = 19.7;
+const HOT_Y = 5.7;
+
+// A finger is a chain of bars, each hinged at the end of the one before.
+function Chain({ segs, angles, w, radius = 2.4, i = 0 }) {
+  if (i >= segs.length) return null;
   return (
-    <g fill={fill} stroke={stroke} strokeWidth={width}>
-      {/* wrist and strap */}
-      <path d="M16.5 1.5 L15.5 11 H28.5 L27.5 1.5" />
-      <rect x="14.2" y="9" width="15.6" height="4.6" rx="1.6" />
-      {/* four folded fingers */}
-      <rect x="8.6" y="28" width="6.6" height="14.5" rx="3.3" />
-      <rect x="15.2" y="28" width="6.6" height="15.5" rx="3.3" />
-      <rect x="21.8" y="28" width="6.6" height="15" rx="3.3" />
-      <rect x="28.4" y="28" width="6.6" height="13.5" rx="3.3" />
-      {/* back of the hand */}
-      <path d="M13 13.4 H31 Q35.6 13.4 36 18.4 L36.6 27 Q36.6 31 32.6 31 H11.4 Q7.4 31 7.4 27 L8 18.4 Q8.4 13.4 13 13.4 Z" />
-      {/* thumb */}
-      <path d="M9.2 15.4 Q2.6 18 3 25.6 Q3.4 31.4 9 30.4 Z" />
+    <g transform={`${i ? `translate(0 ${segs[i - 1]}) ` : ""}rotate(${angles[i]})`}>
+      <rect x={-w / 2} y={0} width={w} height={segs[i]} rx={Math.min(radius, w / 2)} />
+      <Chain segs={segs} angles={angles} w={w * 0.93} radius={radius} i={i + 1} />
     </g>
   );
 }
 
-function Fist() {
+function RoboHand() {
   return (
     <svg
       width="44"
-      height="54"
-      viewBox="0 0 44 54"
+      height={BOX_H}
+      viewBox={`0 0 44 ${BOX_H}`}
       strokeLinecap="round"
       strokeLinejoin="round"
-      style={{ position: "absolute", left: -22, top: -1, overflow: "visible" }}
+      // The middle fingertip sits exactly on the cursor point.
+      style={{ position: "absolute", left: -HOT_X, top: -HOT_Y, overflow: "visible" }}
     >
-      <FistShapes fill={PAPER} stroke={INK} width="1.6" />
-      {/* the same outline again, nudged and fainter: the pencilled look */}
-      <g transform="translate(0.55 0.45)" opacity="0.4">
-        <FistShapes fill="none" stroke={INK} width="1" />
+      <g transform={`translate(0 ${BOX_H}) scale(1 -1)`} fill={FILL} stroke={LINE} strokeWidth="1.1">
+        {/* strapped cuff, behind the palm */}
+        <rect x="14" y="1" width="16" height="9" rx="2" />
+        <path d="M14 4h16M14 6.6h16" strokeWidth="0.8" fill="none" />
+
+        {/* thumb: a long bar angled out to the side */}
+        <g transform="translate(10.8 17)">
+          <Chain segs={[9.4, 7.2]} angles={[26, 10]} w={6.4} radius={3} />
+        </g>
+
+        {/* fingers, under the palm so its lower edge is the knuckle line */}
+        {FINGERS.map((f, i) => (
+          <g key={i} transform={`translate(${f.x} ${KNUCKLE_Y})`}>
+            <Chain segs={f.segs} angles={[f.lean * 1.5, f.lean * 3]} w={6.4} />
+          </g>
+        ))}
+
+        {/* back of the hand: narrower at the wrist, widening to the knuckles */}
+        <path d="M13 8.4h18l3.6 14.1a3.5 3.5 0 0 1-3.4 4.3H12.8a3.5 3.5 0 0 1-3.4-4.3z" />
+        {/* tendons */}
+        <path d="M17 11.5v8M22 11v9.5M27 11.5v8" strokeWidth="0.8" opacity="0.5" fill="none" />
       </g>
-      {/* tendon marks and the joint line across the fingers */}
-      <path d="M16 17.4v8M22 16.8v9M28 17.4v8" stroke={INK} strokeWidth="1" opacity="0.5" fill="none" />
-      <path d="M9.4 35.4 Q22 37.4 34.6 35.4" stroke={INK} strokeWidth="1" opacity="0.55" fill="none" />
     </svg>
   );
 }
