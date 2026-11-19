@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { MapPin, FileText, Download, Mail, Phone } from "lucide-react";
+import { MapPin, Download, Phone } from "lucide-react";
 import { profile } from "../data/content";
 import { GithubIcon, LinkedinIcon } from "./icons";
 import Reveal from "./Reveal";
@@ -79,23 +79,32 @@ export default function Contact() {
           </p>
         </Reveal>
 
-        <Reveal delay={0.18} className="mt-16 flex flex-wrap items-center justify-center gap-x-20 gap-y-10">
-          <PullButton
-            href={`mailto:${profile.email}`}
-            className="rounded-full bg-[var(--color-silver-bright)] px-9 py-4 font-heading text-sm font-semibold text-[var(--color-void)]"
+        <Reveal delay={0.18} className="mt-16">
+          {/* A pale stage, as in the reference: the web is black ink, so it needs
+              a light surface to read on. The web only exists inside it. */}
+          <div
+            data-pull-zone
+            className="relative mx-auto max-w-3xl rounded-[2rem] px-6 py-20 sm:py-24 shadow-[inset_0_1px_0_rgba(255,255,255,0.8),inset_0_-40px_70px_-40px_rgba(70,58,30,0.28),0_40px_90px_-40px_rgba(0,0,0,0.9)] bg-[radial-gradient(120%_90%_at_28%_18%,#f6f3ec,#e6e1d6_68%,#d9d3c7)]"
           >
-            <Mail size={16} strokeWidth={1.8} />
-            Let&apos;s collaborate
-          </PullButton>
-          <PullButton
-            href={profile.resume}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="rounded-full border border-[var(--color-silver-dim)] px-9 py-4 font-heading text-sm font-semibold text-[var(--color-ink)]"
-          >
-            <FileText size={16} strokeWidth={1.8} />
-            View my resume
-          </PullButton>
+            <div className="flex flex-wrap items-center justify-center gap-x-16 gap-y-12">
+              <PullButton
+                href={`mailto:${profile.email}`}
+                glowClassName="bg-[radial-gradient(closest-side,rgba(40,52,110,0.38),transparent)]"
+                className="btn-gloss rounded-full px-14 py-6 font-heading text-[18px] font-bold tracking-tight"
+              >
+                <span className="relative z-10">let&apos;s collaborate</span>
+              </PullButton>
+              <PullButton
+                href={profile.resume}
+                target="_blank"
+                rel="noopener noreferrer"
+                glowClassName="bg-[radial-gradient(closest-side,rgba(40,52,110,0.18),transparent)]"
+                className="btn-ghost-ink rounded-full px-9 py-4 font-heading text-sm font-semibold tracking-tight"
+              >
+                view my resume
+              </PullButton>
+            </div>
+          </div>
         </Reveal>
 
         <Reveal delay={0.24} className="mt-24">
