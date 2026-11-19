@@ -1,4 +1,4 @@
-"""  hi
+"""  
 Lightweight retrieval over the knowledge base.
 
 Uses TF-IDF + cosine similarity rather than neural embeddings — the
